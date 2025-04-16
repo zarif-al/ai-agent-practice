@@ -15,9 +15,6 @@ import { EmptyState } from "@/components/empty-state";
 import { AddDepartmentUI } from "@/components/forms/department";
 
 export default async function Page() {
-	// Simulate fetching data
-	await new Promise((resolve) => setTimeout(resolve, 10000));
-
 	const supabase = await supabaseServerClient();
 
 	const { data: departments, error } = await supabase
