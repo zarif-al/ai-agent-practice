@@ -26,6 +26,7 @@ export default function Loader() {
 						<TableHeader>
 							<TableRow>
 								<TableHead>Name</TableHead>
+								<TableHead className="w-[80px]">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -33,6 +34,9 @@ export default function Loader() {
 								<TableRow key={index}>
 									<TableCell>
 										<Skeleton className="h-5 w-full" />
+									</TableCell>
+									<TableCell>
+										<Skeleton className="h-5 w-[80px]" />
 									</TableCell>
 								</TableRow>
 							))}
