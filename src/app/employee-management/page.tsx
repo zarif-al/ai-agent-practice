@@ -1,8 +1,4 @@
-"use client";
-
-import { useState } from "react";
 import { AppHeader } from "@/components/app-header";
-import { Button } from "@/components/ui/button";
 import {
 	Table,
 	TableBody,
@@ -11,54 +7,28 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { PlusCircle } from "lucide-react";
-import {
-	employees,
-	type Employee,
-	type EmployeeStatus,
-	getStatusColor,
-	formatStatus,
-} from "@/data/employees";
-import { EmployeeForm, type EmployeeFormValues } from "./form";
+import { getStatusColor, formatStatus } from "@/data/employees";
+import { supabaseServerClient } from "@/lib/supabase/server-client";
+import { notFound } from "next/navigation";
 
-export default function EmployeesPage() {
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [employeesList, setEmployeesList] = useState<Employee[]>(employees);
+export default async function Page() {
+	const supabase = await supabaseServerClient();
 
-	const handleAddEmployee = (data: EmployeeFormValues) => {
-		// In a real app, this would be an API call
-		const newEmployee: Employee = {
-			id: employeesList.length + 1,
-			first_name: data.first_name,
-			last_name: data.last_name,
-			email: data.email,
-			phone: data.phone,
-			position_id: Number.parseInt(data.position_id),
-			position_title: data.position_id
-				? employees.find(
-						(e) => e.position_id === Number.parseInt(data.position_id)
-				  )?.position_title || ""
-				: "",
-			department_id: Number.parseInt(data.department_id),
-			department_name: data.department_id
-				? employees.find(
-						(e) => e.department_id === Number.parseInt(data.department_id)
-				  )?.department_name || ""
-				: "",
-			hire_date: data.hire_date.toISOString().split("T")[0],
-			status: data.status as EmployeeStatus,
-		};
+	const { data: employees, error } = await supabase.from("employees").select(`
+			*,
+			position (
+				title,
+				department(
+					name
+				)
+			)
+			`);
 
-		setEmployeesList([...employeesList, newEmployee]);
-		setIsDialogOpen(false);
-	};
+	if (error) {
+		console.error("Error fetching departments:", error);
+
+		notFound();
+	}
 
 	return (
 		<div className="flex flex-col min-h-screen">
@@ -66,17 +36,16 @@ export default function EmployeesPage() {
 			<main className="flex-1 p-4 lg:p-6">
 				<div className="flex justify-between items-center mb-6">
 					<h2 className="text-xl font-semibold">Employees</h2>
-					<Button onClick={() => setIsDialogOpen(true)}>
+					{/* <Button onClick={() => setIsDialogOpen(true)}>
 						<PlusCircle className="mr-2 h-4 w-4" />
 						Add Employee
-					</Button>
+					</Button> */}
 				</div>
 
 				<div className="rounded-md border">
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>ID</TableHead>
 								<TableHead>Name</TableHead>
 								<TableHead>Email</TableHead>
 								<TableHead className="hidden md:table-cell">Phone</TableHead>
@@ -91,9 +60,8 @@ export default function EmployeesPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{employeesList.map((employee) => (
+							{employees.map((employee) => (
 								<TableRow key={employee.id}>
-									<TableCell className="font-medium">{employee.id}</TableCell>
 									<TableCell>
 										{employee.first_name} {employee.last_name}
 									</TableCell>
@@ -102,10 +70,10 @@ export default function EmployeesPage() {
 										{employee.phone}
 									</TableCell>
 									<TableCell className="hidden md:table-cell">
-										{employee.position_title}
+										{employee.position.title}
 									</TableCell>
 									<TableCell className="hidden lg:table-cell">
-										{employee.department_name}
+										{employee.position.department.name}
 									</TableCell>
 									<TableCell className="hidden lg:table-cell">
 										{employee.hire_date}
@@ -126,7 +94,7 @@ export default function EmployeesPage() {
 				</div>
 			</main>
 
-			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+			{/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 				<DialogContent className="sm:max-w-[600px]">
 					<DialogHeader>
 						<DialogTitle>Add New Employee</DialogTitle>
@@ -139,7 +107,7 @@ export default function EmployeesPage() {
 						onCancel={() => setIsDialogOpen(false)}
 					/>
 				</DialogContent>
-			</Dialog>
+			</Dialog> */}
 		</div>
 	);
 }
