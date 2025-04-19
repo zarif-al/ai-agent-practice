@@ -36,10 +36,6 @@ export default async function Page() {
 			<main className="flex-1 p-4 lg:p-6">
 				<div className="flex justify-between items-center mb-6">
 					<h2 className="text-xl font-semibold">Employees</h2>
-					{/* <Button onClick={() => setIsDialogOpen(true)}>
-						<PlusCircle className="mr-2 h-4 w-4" />
-						Add Employee
-					</Button> */}
 				</div>
 
 				<div className="rounded-md border">
@@ -93,21 +89,6 @@ export default async function Page() {
 					</Table>
 				</div>
 			</main>
-
-			{/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-				<DialogContent className="sm:max-w-[600px]">
-					<DialogHeader>
-						<DialogTitle>Add New Employee</DialogTitle>
-						<DialogDescription>
-							Fill in the employee details. Click save when you&apos;re done.
-						</DialogDescription>
-					</DialogHeader>
-					<EmployeeForm
-						onSubmit={handleAddEmployee}
-						onCancel={() => setIsDialogOpen(false)}
-					/>
-				</DialogContent>
-			</Dialog> */}
 		</div>
 	);
 }
