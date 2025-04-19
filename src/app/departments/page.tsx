@@ -7,12 +7,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { AddDepartmentUI } from "@/components/forms/department/insert";
-import { DeleteDepartmentsButton } from "@/components/forms/department/delete";
 
 export default async function Page() {
 	const supabase = await supabaseServerClient();
@@ -41,19 +39,12 @@ export default async function Page() {
 							<TableHeader>
 								<TableRow>
 									<TableHead>Name</TableHead>
-									<TableHead className="w-[80px]">Actions</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{departments.map((department) => (
 									<TableRow key={department.id}>
 										<TableCell>{department.name}</TableCell>
-										<TableCell>
-											<DeleteDepartmentsButton
-												id={department.id}
-												name={department.name}
-											/>
-										</TableCell>
 									</TableRow>
 								))}
 							</TableBody>
