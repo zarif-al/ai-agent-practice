@@ -1,4 +1,5 @@
 import { AppHeader } from "@/components/app-header";
+import { EmptyState } from "@/components/empty-state";
 import {
 	Table,
 	TableBody,
@@ -54,26 +55,33 @@ export default async function Page() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{job_openings.map((job) => (
-								<TableRow key={job.id}>
-									<TableCell>{job.position.title}</TableCell>
-									<TableCell className="hidden md:table-cell">
-										{job.position.department.name}
-									</TableCell>
-									<TableCell className="hidden lg:table-cell max-w-md truncate">
-										{job.description}
-									</TableCell>
-									<TableCell>
-										<span
-											className={`px-2 py-1 rounded-full text-xs font-medium ${getJobStatusColor(
-												job.status
-											)}`}
-										>
-											{formatJobStatus(job.status)}
-										</span>
-									</TableCell>
-								</TableRow>
-							))}
+							{job_openings.length > 0 ? (
+								job_openings.map((job) => (
+									<TableRow key={job.id}>
+										<TableCell>{job.position.title}</TableCell>
+										<TableCell className="hidden md:table-cell">
+											{job.position.department.name}
+										</TableCell>
+										<TableCell className="hidden lg:table-cell max-w-md truncate">
+											{job.description}
+										</TableCell>
+										<TableCell>
+											<span
+												className={`px-2 py-1 rounded-full text-xs font-medium ${getJobStatusColor(
+													job.status
+												)}`}
+											>
+												{formatJobStatus(job.status)}
+											</span>
+										</TableCell>
+									</TableRow>
+								))
+							) : (
+								<EmptyState
+									title="No Job Openings Found"
+									description="You haven't added any job openings yet. Add your job opening to get started."
+								/>
+							)}
 						</TableBody>
 					</Table>
 				</div>

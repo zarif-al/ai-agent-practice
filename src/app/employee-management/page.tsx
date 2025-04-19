@@ -1,4 +1,5 @@
 import { AppHeader } from "@/components/app-header";
+import { EmptyState } from "@/components/empty-state";
 import {
 	Table,
 	TableBody,
@@ -56,35 +57,42 @@ export default async function Page() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{employees.map((employee) => (
-								<TableRow key={employee.id}>
-									<TableCell>
-										{employee.first_name} {employee.last_name}
-									</TableCell>
-									<TableCell>{employee.email}</TableCell>
-									<TableCell className="hidden md:table-cell">
-										{employee.phone}
-									</TableCell>
-									<TableCell className="hidden md:table-cell">
-										{employee.position.title}
-									</TableCell>
-									<TableCell className="hidden lg:table-cell">
-										{employee.position.department.name}
-									</TableCell>
-									<TableCell className="hidden lg:table-cell">
-										{employee.hire_date}
-									</TableCell>
-									<TableCell>
-										<span
-											className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-												employee.status
-											)}`}
-										>
-											{formatStatus(employee.status)}
-										</span>
-									</TableCell>
-								</TableRow>
-							))}
+							{employees.length > 0 ? (
+								employees.map((employee) => (
+									<TableRow key={employee.id}>
+										<TableCell>
+											{employee.first_name} {employee.last_name}
+										</TableCell>
+										<TableCell>{employee.email}</TableCell>
+										<TableCell className="hidden md:table-cell">
+											{employee.phone}
+										</TableCell>
+										<TableCell className="hidden md:table-cell">
+											{employee.position.title}
+										</TableCell>
+										<TableCell className="hidden lg:table-cell">
+											{employee.position.department.name}
+										</TableCell>
+										<TableCell className="hidden lg:table-cell">
+											{employee.hire_date}
+										</TableCell>
+										<TableCell>
+											<span
+												className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+													employee.status
+												)}`}
+											>
+												{formatStatus(employee.status)}
+											</span>
+										</TableCell>
+									</TableRow>
+								))
+							) : (
+								<EmptyState
+									title="No Employee Data found"
+									description="You haven't added any employees yet. Add your first employee to get started."
+								/>
+							)}
 						</TableBody>
 					</Table>
 				</div>
