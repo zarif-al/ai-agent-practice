@@ -40,7 +40,7 @@ export function JobOpeningsSnippet() {
 					<CardDescription>Currently open job positions</CardDescription>
 				</div>
 				<Button variant="ghost" size="sm" asChild>
-					<Link href="/job-management" className="flex items-center">
+					<Link href="/job-openings" className="flex items-center">
 						View All
 						<ChevronRight className="ml-1 h-4 w-4" />
 					</Link>
