@@ -33,7 +33,7 @@ export const navItems = [
 	{
 		title: "Job Openings",
 		icon: Briefcase,
-		href: "/job-management",
+		href: "/job-openings",
 	},
 	{
 		title: "Leave Management",
