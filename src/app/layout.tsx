@@ -28,11 +28,11 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				className={`${geistSans.variable} ${geistMono.variable} antialiased `}
 			>
 				<SidebarProvider>
 					<AppSidebar />
-					<SidebarInset>{children}</SidebarInset>
+					<SidebarInset className="text-black">{children}</SidebarInset>
 				</SidebarProvider>
 
 				<Toaster className="pointer-events-auto" richColors />
