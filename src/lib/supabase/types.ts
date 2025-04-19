@@ -101,27 +101,27 @@ export type Database = {
 					created_at: string;
 					description: string;
 					id: string;
-					position_id: string | null;
+					position: string;
 					status: Database["public"]["Enums"]["job_opening_status"];
 				};
 				Insert: {
 					created_at?: string;
 					description?: string;
 					id?: string;
-					position_id?: string | null;
+					position?: string;
 					status: Database["public"]["Enums"]["job_opening_status"];
 				};
 				Update: {
 					created_at?: string;
 					description?: string;
 					id?: string;
-					position_id?: string | null;
+					position?: string;
 					status?: Database["public"]["Enums"]["job_opening_status"];
 				};
 				Relationships: [
 					{
-						foreignKeyName: "job_openings_position_id_fkey";
-						columns: ["position_id"];
+						foreignKeyName: "job_openings_position_fkey";
+						columns: ["position"];
 						isOneToOne: false;
 						referencedRelation: "positions";
 						referencedColumns: ["id"];
@@ -131,7 +131,7 @@ export type Database = {
 			leave_management: {
 				Row: {
 					created_at: string;
-					employee_id: string;
+					employee: string;
 					end_date: string;
 					id: string;
 					leave_type: Database["public"]["Enums"]["leave_type"];
@@ -140,7 +140,7 @@ export type Database = {
 				};
 				Insert: {
 					created_at?: string;
-					employee_id?: string;
+					employee?: string;
 					end_date: string;
 					id?: string;
 					leave_type: Database["public"]["Enums"]["leave_type"];
@@ -149,7 +149,7 @@ export type Database = {
 				};
 				Update: {
 					created_at?: string;
-					employee_id?: string;
+					employee?: string;
 					end_date?: string;
 					id?: string;
 					leave_type?: Database["public"]["Enums"]["leave_type"];
@@ -158,8 +158,8 @@ export type Database = {
 				};
 				Relationships: [
 					{
-						foreignKeyName: "leave_management_employee_id_fkey";
-						columns: ["employee_id"];
+						foreignKeyName: "leave_management_employee_fkey";
+						columns: ["employee"];
 						isOneToOne: false;
 						referencedRelation: "employees";
 						referencedColumns: ["id"];
@@ -173,7 +173,7 @@ export type Database = {
 					created_at: string;
 					currency: Database["public"]["Enums"]["currency_type"] | null;
 					deductions: number | null;
-					employee_id: string;
+					employee: string;
 					id: string;
 					net_salary: number;
 				};
@@ -183,7 +183,7 @@ export type Database = {
 					created_at?: string;
 					currency?: Database["public"]["Enums"]["currency_type"] | null;
 					deductions?: number | null;
-					employee_id?: string;
+					employee?: string;
 					id?: string;
 					net_salary: number;
 				};
@@ -193,14 +193,14 @@ export type Database = {
 					created_at?: string;
 					currency?: Database["public"]["Enums"]["currency_type"] | null;
 					deductions?: number | null;
-					employee_id?: string;
+					employee?: string;
 					id?: string;
 					net_salary?: number;
 				};
 				Relationships: [
 					{
-						foreignKeyName: "payroll_employee_id_fkey";
-						columns: ["employee_id"];
+						foreignKeyName: "payroll_employee_fkey";
+						columns: ["employee"];
 						isOneToOne: false;
 						referencedRelation: "employees";
 						referencedColumns: ["id"];
