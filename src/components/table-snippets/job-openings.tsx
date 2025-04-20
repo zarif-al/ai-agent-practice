@@ -14,23 +14,37 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { Briefcase, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import {
-	jobOpenings,
-	getJobStatusColor,
-	formatJobStatus,
-} from "@/data/job-openings";
+import { getJobStatusColor, formatJobStatus } from "@/data/job-openings";
+import { supabaseServerClient } from "@/lib/supabase/server-client";
+import { notFound } from "next/navigation";
+import { TableSnippetEmpty } from "./empty";
 
-export function JobOpeningsSnippet() {
-	// Only show open job openings and limit to 5
-	const openJobs = jobOpenings
-		.filter((job) => job.status === "open")
-		.sort(
-			(a, b) =>
-				new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+export async function JobOpeningsSnippet() {
+	const supabase = await supabaseServerClient();
+
+	const { data: job_openings, error } = await supabase
+		.from("job_openings")
+		.select(
+			`
+			*,
+			position (
+				title,
+				department(
+					name
+				)
+			)
+			`
 		)
-		.slice(0, 5);
+		.limit(5)
+		.order("created_at", { ascending: false });
+
+	if (error) {
+		console.error("Error fetching departments:", error);
+
+		notFound();
+	}
 
 	return (
 		<Card>
@@ -56,32 +70,30 @@ export function JobOpeningsSnippet() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{openJobs.map((job) => (
-							<TableRow key={job.id}>
-								<TableCell>{job.title}</TableCell>
-								<TableCell className="hidden md:table-cell">
-									{job.department_name}
-								</TableCell>
-								<TableCell>
-									<span
-										className={`px-2 py-1 rounded-full text-xs font-medium ${getJobStatusColor(
-											job.status
-										)}`}
-									>
-										{formatJobStatus(job.status)}
-									</span>
-								</TableCell>
-							</TableRow>
-						))}
-						{openJobs.length === 0 && (
-							<TableRow>
-								<TableCell
-									colSpan={3}
-									className="text-center py-4 text-muted-foreground"
-								>
-									No open positions at this time
-								</TableCell>
-							</TableRow>
+						{job_openings.length > 0 ? (
+							job_openings.map((job) => (
+								<TableRow key={job.id}>
+									<TableCell>{job.position.title}</TableCell>
+									<TableCell className="hidden md:table-cell">
+										{job.position.department.name}
+									</TableCell>
+									<TableCell>
+										<span
+											className={`px-2 py-1 rounded-full text-xs font-medium ${getJobStatusColor(
+												job.status
+											)}`}
+										>
+											{formatJobStatus(job.status)}
+										</span>
+									</TableCell>
+								</TableRow>
+							))
+						) : (
+							<TableSnippetEmpty
+								icon={Briefcase}
+								title="No open positions"
+								description="Add job openings to see them listed here."
+							/>
 						)}
 					</TableBody>
 				</Table>
