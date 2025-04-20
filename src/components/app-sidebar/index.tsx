@@ -1,6 +1,6 @@
 "use client";
 
-import { Building } from "lucide-react";
+import { Building, MessageSquare } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -13,9 +13,12 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "./data";
+import { ChatModal } from "../chat-modal";
+import { useState } from "react";
 
 export function AppSidebar() {
 	const pathname = usePathname();
+	const [isChatOpen, setIsChatOpen] = useState(false);
 
 	return (
 		<Sidebar>
@@ -45,8 +48,19 @@ export function AppSidebar() {
 						</SidebarMenuItem>
 					))}
 				</SidebarMenu>
+				<div className="mt-auto">
+					<SidebarMenu>
+						<SidebarMenuItem>
+							<SidebarMenuButton onClick={() => setIsChatOpen(true)}>
+								<MessageSquare className="size-5" />
+								<span>Chat with HR Assistant</span>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					</SidebarMenu>
+				</div>
 			</SidebarContent>
 			<SidebarRail />
+			<ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
 		</Sidebar>
 	);
 }
