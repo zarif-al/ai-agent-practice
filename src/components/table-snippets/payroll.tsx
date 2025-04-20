@@ -14,15 +14,35 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, DollarSign } from "lucide-react";
 import Link from "next/link";
-import { payrollRecords, formatCurrency } from "@/data/payroll";
+import { formatCurrency } from "@/data/payroll";
+import { supabaseServerClient } from "@/lib/supabase/server-client";
+import { notFound } from "next/navigation";
+import { TableSnippetEmpty } from "./empty";
 
-export function PayrollSnippet() {
-	// Get the top 5 highest paid employees
-	const topPaidEmployees = [...payrollRecords]
-		.sort((a, b) => b.net_salary - a.net_salary)
-		.slice(0, 5);
+export async function PayrollSnippet() {
+	const supabase = await supabaseServerClient();
+
+	const { data: payroll_items, error } = await supabase
+		.from("payroll")
+		.select(
+			`
+			*,
+			employee(
+				first_name,
+				last_name
+			)
+			`
+		)
+		.limit(5)
+		.order("net_salary", { ascending: false });
+
+	if (error) {
+		console.error("Error fetching departments:", error);
+
+		notFound();
+	}
 
 	return (
 		<Card>
@@ -48,17 +68,27 @@ export function PayrollSnippet() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{topPaidEmployees.map((record) => (
-							<TableRow key={record.id}>
-								<TableCell>{record.employee_name}</TableCell>
-								<TableCell className="text-right">
-									{formatCurrency(record.base_salary)}
-								</TableCell>
-								<TableCell className="text-right font-medium">
-									{formatCurrency(record.net_salary)}
-								</TableCell>
-							</TableRow>
-						))}
+						{payroll_items.length > 0 ? (
+							payroll_items.map((record) => (
+								<TableRow key={record.id}>
+									<TableCell>
+										{record.employee.first_name} {record.employee.last_name}
+									</TableCell>
+									<TableCell className="text-right">
+										{formatCurrency(record.base_salary)}
+									</TableCell>
+									<TableCell className="text-right font-medium">
+										{formatCurrency(record.net_salary)}
+									</TableCell>
+								</TableRow>
+							))
+						) : (
+							<TableSnippetEmpty
+								icon={DollarSign}
+								title="No payroll records"
+								description="Add payroll records to see top compensations."
+							/>
+						)}
 					</TableBody>
 				</Table>
 			</CardContent>
