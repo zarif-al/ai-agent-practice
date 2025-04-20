@@ -14,24 +14,41 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import {
-	leaveRequests,
 	getLeaveStatusColor,
 	formatLeaveStatus,
 	formatLeaveType,
 } from "@/data/leave-requests";
+import { supabaseServerClient } from "@/lib/supabase/server-client";
+import { notFound } from "next/navigation";
+import { TableSnippetEmpty } from "./empty";
 
-export function LeaveRequestsSnippet() {
-	// Only show pending leave requests and limit to 5
-	const pendingRequests = leaveRequests
-		.filter((request) => request.status === "pending")
-		.sort(
-			(a, b) =>
-				new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+export async function LeaveRequestsSnippet() {
+	const supabase = await supabaseServerClient();
+
+	const { data: leave_requests, error } = await supabase
+		.from("leave_management")
+		.select(
+			`
+			*,
+			employee(
+				first_name,
+				last_name
+			)
+			`
 		)
-		.slice(0, 5);
+		.limit(5)
+		.order("created_at", {
+			ascending: false,
+		});
+
+	if (error) {
+		console.error("Error fetching departments:", error);
+
+		notFound();
+	}
 
 	return (
 		<Card>
@@ -58,33 +75,33 @@ export function LeaveRequestsSnippet() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{pendingRequests.map((request) => (
-							<TableRow key={request.id}>
-								<TableCell>{request.employee_name}</TableCell>
-								<TableCell>{formatLeaveType(request.leave_type)}</TableCell>
-								<TableCell className="hidden md:table-cell">
-									{request.start_date} to {request.end_date}
-								</TableCell>
-								<TableCell>
-									<span
-										className={`px-2 py-1 rounded-full text-xs font-medium ${getLeaveStatusColor(
-											request.status
-										)}`}
-									>
-										{formatLeaveStatus(request.status)}
-									</span>
-								</TableCell>
-							</TableRow>
-						))}
-						{pendingRequests.length === 0 && (
-							<TableRow>
-								<TableCell
-									colSpan={4}
-									className="text-center py-4 text-muted-foreground"
-								>
-									No pending leave requests
-								</TableCell>
-							</TableRow>
+						{leave_requests.length > 0 ? (
+							leave_requests.map((request) => (
+								<TableRow key={request.id}>
+									<TableCell>
+										{request.employee.first_name} {request.employee.last_name}
+									</TableCell>
+									<TableCell>{formatLeaveType(request.leave_type)}</TableCell>
+									<TableCell className="hidden md:table-cell">
+										{request.start_date} to {request.end_date}
+									</TableCell>
+									<TableCell>
+										<span
+											className={`px-2 py-1 rounded-full text-xs font-medium ${getLeaveStatusColor(
+												request.status
+											)}`}
+										>
+											{formatLeaveStatus(request.status)}
+										</span>
+									</TableCell>
+								</TableRow>
+							))
+						) : (
+							<TableSnippetEmpty
+								icon={Calendar}
+								title="No pending requests"
+								description="There are no leave requests awaiting approval."
+							/>
 						)}
 					</TableBody>
 				</Table>
