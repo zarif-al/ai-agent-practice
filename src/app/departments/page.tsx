@@ -10,7 +10,6 @@ import {
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
-import { AddDepartmentUI } from "@/components/forms/department/insert";
 
 export default async function Page() {
 	const supabase = await supabaseServerClient();
@@ -29,8 +28,8 @@ export default async function Page() {
 		<div className="flex flex-col min-h-screen">
 			<AppHeader title="Departments" />
 			<main className="flex-1 p-4 lg:p-6">
-				<div className="flex justify-end items-center mb-6">
-					<AddDepartmentUI />
+				<div className="flex justify-between items-center mb-6">
+					<h2 className="text-xl font-semibold">Departments</h2>
 				</div>
 
 				{departments.length > 0 ? (
