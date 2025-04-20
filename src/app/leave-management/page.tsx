@@ -7,15 +7,15 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {
-	getLeaveStatusColor,
-	formatLeaveStatus,
-	formatLeaveType,
-	calculateLeaveDays,
-} from "@/data/leave-requests";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
+import {
+	calculateLeaveDays,
+	formatLeaveStatus,
+	formatLeaveType,
+	getLeaveStatusColor,
+} from "@/lib/helpers";
 
 export default async function Page() {
 	const supabase = await supabaseServerClient();
