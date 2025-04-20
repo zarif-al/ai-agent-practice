@@ -8,7 +8,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { getStatusColor, formatStatus } from "@/data/employees";
+import { formatEmployeeStatus, getEmployeeStatusColor } from "@/lib/helpers";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 
@@ -78,11 +78,11 @@ export default async function Page() {
 										</TableCell>
 										<TableCell>
 											<span
-												className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+												className={`px-2 py-1 rounded-full text-xs font-medium ${getEmployeeStatusColor(
 													employee.status
 												)}`}
 											>
-												{formatStatus(employee.status)}
+												{formatEmployeeStatus(employee.status)}
 											</span>
 										</TableCell>
 									</TableRow>

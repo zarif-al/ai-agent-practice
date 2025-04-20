@@ -16,10 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronRight, DollarSign } from "lucide-react";
 import Link from "next/link";
-import { formatCurrency } from "@/data/payroll";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { TableSnippetEmpty } from "./empty";
+import { formatCurrency } from "@/lib/helpers";
 
 export async function PayrollSnippet() {
 	const supabase = await supabaseServerClient();

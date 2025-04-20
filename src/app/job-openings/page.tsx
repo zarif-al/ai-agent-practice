@@ -8,7 +8,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { getJobStatusColor, formatJobStatus } from "@/data/job-openings";
+import { formatJobStatus, getJobStatusColor } from "@/lib/helpers";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 

@@ -16,10 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Briefcase, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getJobStatusColor, formatJobStatus } from "@/data/job-openings";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { TableSnippetEmpty } from "./empty";
+import { formatJobStatus, getJobStatusColor } from "@/lib/helpers";
 
 export async function JobOpeningsSnippet() {
 	const supabase = await supabaseServerClient();

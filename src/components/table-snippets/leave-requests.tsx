@@ -16,14 +16,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import {
-	getLeaveStatusColor,
-	formatLeaveStatus,
-	formatLeaveType,
-} from "@/data/leave-requests";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { TableSnippetEmpty } from "./empty";
+import {
+	formatLeaveStatus,
+	formatLeaveType,
+	getLeaveStatusColor,
+} from "@/lib/helpers";
 
 export async function LeaveRequestsSnippet() {
 	const supabase = await supabaseServerClient();

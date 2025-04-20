@@ -16,10 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Users } from "lucide-react";
 import Link from "next/link";
-import { getStatusColor, formatStatus } from "@/data/employees";
 import { supabaseServerClient } from "@/lib/supabase/server-client";
 import { notFound } from "next/navigation";
 import { TableSnippetEmpty } from "./empty";
+import { formatEmployeeStatus, getEmployeeStatusColor } from "@/lib/helpers";
 
 export async function EmployeeTableSnippet() {
 	const supabase = await supabaseServerClient();
@@ -85,11 +85,11 @@ export async function EmployeeTableSnippet() {
 									</TableCell>
 									<TableCell>
 										<span
-											className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+											className={`px-2 py-1 rounded-full text-xs font-medium ${getEmployeeStatusColor(
 												employee.status
 											)}`}
 										>
-											{formatStatus(employee.status)}
+											{formatEmployeeStatus(employee.status)}
 										</span>
 									</TableCell>
 								</TableRow>
