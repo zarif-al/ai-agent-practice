@@ -6,6 +6,7 @@ import { X, Send, User, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { generateGraph } from "./generate-graph";
 
 interface ChatMessage {
 	id: string;
@@ -31,6 +32,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 	const [inputValue, setInputValue] = useState("");
 	const inputRef = useRef<HTMLInputElement>(null);
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const [isLoading, setIsLoading] = useState(false);
 
 	// Focus input when modal opens
 	useEffect(() => {
@@ -47,8 +49,10 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 	}, [messages]);
 
 	// Handle sending a message
-	const handleSendMessage = () => {
-		if (!inputValue.trim()) return;
+	const handleSendMessage = async () => {
+		if (!inputValue.trim()) {
+			return;
+		}
 
 		// Add user message
 		const userMessage: ChatMessage = {
@@ -57,19 +61,25 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 			sender: "user",
 			timestamp: new Date(),
 		};
+
 		setMessages((prev) => [...prev, userMessage]);
+
 		setInputValue("");
 
-		// Simulate assistant response after a short delay
-		setTimeout(() => {
-			const assistantMessage: ChatMessage = {
-				id: (Date.now() + 1).toString(),
-				content: getSimulatedResponse(inputValue),
-				sender: "assistant",
-				timestamp: new Date(),
-			};
-			setMessages((prev) => [...prev, assistantMessage]);
-		}, 1000);
+		setIsLoading(true);
+
+		const response = await generateGraph(inputValue);
+
+		const assistantMessage: ChatMessage = {
+			id: (Date.now() + 1).toString(),
+			content: response,
+			sender: "assistant",
+			timestamp: new Date(),
+		};
+
+		setMessages((prev) => [...prev, assistantMessage]);
+
+		setIsLoading(false);
 	};
 
 	// Handle key press (Enter to send)
@@ -79,28 +89,10 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 		}
 	};
 
-	// Simple function to simulate responses
-	const getSimulatedResponse = (query: string): string => {
-		const lowerQuery = query.toLowerCase();
-
-		if (lowerQuery.includes("hello") || lowerQuery.includes("hi")) {
-			return "Hello! How can I assist you with HR matters today?";
-		} else if (
-			lowerQuery.includes("leave") ||
-			lowerQuery.includes("vacation")
-		) {
-			return "To request leave, please go to the Leave Management section. You can submit a new request there.";
-		} else if (lowerQuery.includes("salary") || lowerQuery.includes("pay")) {
-			return "Payroll information can be found in the Payroll & Compensation section. If you have specific questions about your salary, please contact the HR department directly.";
-		} else if (lowerQuery.includes("job") || lowerQuery.includes("position")) {
-			return "You can view all open positions in the Job Openings section. If you're interested in applying, please submit your application through the careers portal.";
-		} else {
-			return "I'm not sure I understand your question. Could you please provide more details or rephrase your query?";
-		}
-	};
-
 	// If modal is not open, don't render anything
-	if (!isOpen) return null;
+	if (!isOpen) {
+		return null;
+	}
 
 	return (
 		<div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
@@ -117,23 +109,29 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 				{/* Chat messages */}
 				<ScrollArea className="flex-1 p-4">
 					<div className="space-y-4">
-						{messages.map((message) => (
+						{messages.map((message, index) => (
 							<div
 								key={message.id}
+								// Ref to scroll to the last message
+								ref={index === messages.length - 1 ? messagesEndRef : null}
+								// Align user messages to the right, assistant messages to the left
 								className={`flex ${
 									message.sender === "user" ? "justify-end" : "justify-start"
 								}`}
 							>
 								<div
+									// Container for avatar and message bubble
+									// For user messages, reverse the order (avatar on right)
 									className={`flex items-start gap-2 max-w-[80%] ${
 										message.sender === "user" ? "flex-row-reverse" : ""
 									}`}
 								>
+									{/* Avatar circle with icon based on sender */}
 									<div
 										className={`size-8 rounded-full flex items-center justify-center ${
 											message.sender === "user"
-												? "bg-primary text-primary-foreground"
-												: "bg-muted"
+												? "bg-primary text-primary-foreground" // Blue background for user
+												: "bg-muted" // Gray background for assistant
 										}`}
 									>
 										{message.sender === "user" ? (
@@ -142,14 +140,19 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 											<Bot className="size-4" />
 										)}
 									</div>
+
+									{/* Message bubble with content and timestamp */}
 									<div
 										className={`rounded-lg px-4 py-2 ${
 											message.sender === "user"
-												? "bg-primary text-primary-foreground"
-												: "bg-muted text-foreground"
+												? "bg-primary text-primary-foreground" // Blue bubble for user
+												: "bg-muted text-foreground" // Gray bubble for assistant
 										}`}
 									>
+										{/* Message content */}
 										<p>{message.content}</p>
+
+										{/* Timestamp in smaller text */}
 										<p className="text-xs opacity-70 mt-1">
 											{message.timestamp.toLocaleTimeString([], {
 												hour: "2-digit",
@@ -160,7 +163,9 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 								</div>
 							</div>
 						))}
-						<div ref={messagesEndRef} />
+
+						{/* Loading indicator for BOT */}
+						{isLoading && <TypingIndicator />}
 					</div>
 				</ScrollArea>
 
@@ -179,6 +184,38 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
 							<Send className="size-4 mr-2" />
 							Send
 						</Button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * TypingIndicator component to show when the bot is typing.
+ *
+ */
+function TypingIndicator() {
+	return (
+		<div className="flex justify-start">
+			<div className="flex items-start gap-2 max-w-[80%]">
+				<div className="size-8 rounded-full flex items-center justify-center bg-muted">
+					<Bot className="size-4" />
+				</div>
+				<div className="rounded-lg px-4 py-2 bg-muted text-foreground">
+					<div className="flex items-center gap-1">
+						<span
+							className="size-2 rounded-full bg-current animate-pulse"
+							style={{ animationDelay: "0ms" }}
+						></span>
+						<span
+							className="size-2 rounded-full bg-current animate-pulse"
+							style={{ animationDelay: "300ms" }}
+						></span>
+						<span
+							className="size-2 rounded-full bg-current animate-pulse"
+							style={{ animationDelay: "600ms" }}
+						></span>
 					</div>
 				</div>
 			</div>
