@@ -1,7 +1,8 @@
 "use server";
 
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { generateText } from "ai";
+import { generateObject } from "ai";
+import { z } from "zod";
 
 export async function generateGraph(prompt: string) {
 	try {
@@ -9,12 +10,15 @@ export async function generateGraph(prompt: string) {
 			apiKey: process.env.OPEN_AI_KEY,
 		});
 
-		const { text } = await generateText({
+		const { object } = await generateObject({
 			model: openrouter.chat("google/gemini-2.0-flash-exp:free"),
 			prompt,
+			schema: z.object({
+				response: z.string(),
+			}),
 		});
 
-		return text;
+		return object.response;
 	} catch (error) {
 		console.error("Error generating graph:", error);
 
