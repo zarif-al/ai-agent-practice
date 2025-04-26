@@ -22,8 +22,9 @@ export const employeesTable = pgTable('employees', {
   last_name: varchar('last_name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   phone: varchar('phone', { length: 255 }).notNull(),
-  // Do not delete employee records when position is deleted.
-  position: uuid('position').references(() => positionsTable.id),
+  position: uuid('position')
+    .references(() => positionsTable.id)
+    .notNull(),
   hire_date: date('hire_date').notNull(),
   status: userStatusEnum('status').notNull(),
   created_at: timestamp('created_at', { withTimezone: true })
@@ -33,3 +34,4 @@ export const employeesTable = pgTable('employees', {
 
 export type IEmployeesSelect = typeof employeesTable.$inferSelect;
 export type IEmployeesInsert = typeof employeesTable.$inferInsert;
+export type UserStatusEnum = (typeof userStatusEnum)['enumValues'][number];

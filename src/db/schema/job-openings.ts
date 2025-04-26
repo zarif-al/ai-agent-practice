@@ -20,3 +20,5 @@ export const jobOpeningsTable = pgTable('job_openings', {
 
 export type IJobOpeningsSelect = typeof jobOpeningsTable.$inferSelect;
 export type IJobOpeningsInsert = typeof jobOpeningsTable.$inferInsert;
+export type JobOpeningStatusEnum =
+  (typeof jobOpeningStatusEnum)['enumValues'][number];

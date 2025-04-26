@@ -28,3 +28,6 @@ export const leaveManagementTable = pgTable('leave_management', {
 
 export type ILeaveManagementSelect = typeof leaveManagementTable.$inferSelect;
 export type ILeaveManagementInsert = typeof leaveManagementTable.$inferInsert;
+export type LeaveTypeEnum = (typeof leaveTypeEnum)['enumValues'][number];
+export type LeaveRequestStatusEnum =
+  (typeof leaveRequestStatusEnum)['enumValues'][number];
