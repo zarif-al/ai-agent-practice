@@ -1,7 +1,7 @@
 import { appendResponseMessages, streamText } from 'ai';
 import { saveChat } from '@/lib/chat-store';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import DatabaseSchema from './context/tables.json';
+import { getSchemaAsString } from './context/database';
 // import { z } from "zod";
 
 export async function POST(req: Request) {
@@ -20,9 +20,9 @@ export async function POST(req: Request) {
     const result = await streamText({
       model: openrouter.chat('google/gemini-2.0-flash-exp:free'),
       system:
-        `Here is the database schema of the system you are working with ${JSON.stringify(
-          DatabaseSchema
-        )}` +
+        `Here is the database schema of the system you are working with:
+         Schema: ${getSchemaAsString()}
+        ` +
         `Your job is to help answer any and all queries regarding this database` +
         `If the user wants to generate graphs based on data from this database you will first validate the users request against the schema to see if it is a valid request.`,
       messages,
