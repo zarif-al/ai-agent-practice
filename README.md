@@ -23,3 +23,4 @@ Or you can look for free models that have the necessary requirements in [Open Ro
 3. Run `pnpm drizzle-kit-push` to push the defined schema into your local postgreSQL database
 4. Run `pnpm seed` to insert data into the database
 5. Run `pnpm dev`
+6. You can run `pnpm drizzle-kit-studio` to get open a nice UI for editing database entries
