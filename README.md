@@ -1,20 +1,11 @@
 # AI HR APPLICATION
 
-## Updating Types
+This is a project to learn about AI development flows and challenges. The goal of this project is to learn how to integrate AI into our common tools and use it to generate results that would otherwise require dedicated coded modules.
 
-1. Install `supabase` cli
-2. Run the following command `supabase gen types typescript --project-id your_project_id > src/lib/supabase/types.ts`. Make sure to replace `your_project_id`.
-3. Or you can generate it from the [dashboard](https://supabase.com/dashboard/project/_/api?page=tables-intro) and paste it in `src/lib/supabase/types.ts`
+## Getting Started
 
-## Generate Table JSON
-
-```sql
-SELECT
-  table_name,
-  column_name,
-  data_type,
-  is_nullable
-FROM information_schema.columns
-WHERE table_schema = 'public'
-ORDER BY table_name, ordinal_position;
-```
+1. Install dependencies using `pnpm i`
+2. Start a local postgreSQL service and create a table called `ai-hr-app`
+3. Run `pnpm drizzle-kit-push` to push the defined schema into your local postgreSQL database
+4. Run `pnpm seed` to insert data into the database
+5. Run `pnpm dev`
