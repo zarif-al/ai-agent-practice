@@ -84,61 +84,61 @@ export const positions: IPositionsInsert[] = [
   {
     id: uuidv4(),
     title: 'Software Engineer',
-    department: departments[0].id!, // Engineering
+    department: departments[0]?.id || '', // Engineering
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Product Manager',
-    department: departments[1].id!, // Product
+    department: departments[1]?.id || '', // Product
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'UX/UI Designer',
-    department: departments[2].id!, // Design
+    department: departments[2]?.id || '', // Design
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'HR Coordinator',
-    department: departments[3].id!, // Human Resources
+    department: departments[3]?.id || '', // Human Resources
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Marketing Specialist',
-    department: departments[4].id!, // Marketing
+    department: departments[4]?.id || '', // Marketing
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Financial Analyst',
-    department: departments[5].id!, // Finance
+    department: departments[5]?.id || '', // Finance
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Customer Support Representative',
-    department: departments[6].id!, // Customer Support
+    department: departments[6]?.id || '', // Customer Support
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Sales Representative',
-    department: departments[7].id!, // Sales
+    department: departments[7]?.id || '', // Sales
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Legal Advisor',
-    department: departments[8].id!, // Legal
+    department: departments[8]?.id || '', // Legal
     created_at: new Date(),
   },
   {
     id: uuidv4(),
     title: 'Research Scientist',
-    department: departments[9].id!, // Research & Development
+    department: departments[9]?.id || '', // Research & Development
     created_at: new Date(),
   },
 ];
@@ -151,7 +151,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Doe',
     email: 'john.doe@example.com',
     phone: '(555) 123-4567',
-    position: positions[0].id!, // Software Engineer
+    position: positions[0]?.id || '', // Software Engineer
     hire_date: '2020-03-15',
     status: 'active',
     created_at: new Date(),
@@ -162,7 +162,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Smith',
     email: 'jane.smith@example.com',
     phone: '(555) 987-6543',
-    position: positions[1].id!, // Product Manager
+    position: positions[1]?.id || '', // Product Manager
     hire_date: '2019-07-22',
     status: 'active',
     created_at: new Date(),
@@ -173,7 +173,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Johnson',
     email: 'michael.johnson@example.com',
     phone: '(555) 456-7890',
-    position: positions[2].id!, // UX/UI Designer
+    position: positions[2]?.id || '', // UX/UI Designer
     hire_date: '2021-01-10',
     status: 'on_leave',
     created_at: new Date(),
@@ -184,7 +184,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Williams',
     email: 'emily.williams@example.com',
     phone: '(555) 234-5678',
-    position: positions[3].id!, // HR Coordinator
+    position: positions[3]?.id || '', // HR Coordinator
     hire_date: '2018-11-05',
     status: 'active',
     created_at: new Date(),
@@ -195,7 +195,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Brown',
     email: 'david.brown@example.com',
     phone: '(555) 876-5432',
-    position: positions[4].id!, // Marketing Specialist
+    position: positions[4]?.id || '', // Marketing Specialist
     hire_date: '2022-02-28',
     status: 'active',
     created_at: new Date(),
@@ -206,7 +206,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Miller',
     email: 'sarah.miller@example.com',
     phone: '(555) 345-6789',
-    position: positions[5].id!, // Financial Analyst
+    position: positions[5]?.id || '', // Financial Analyst
     hire_date: '2020-09-14',
     status: 'active',
     created_at: new Date(),
@@ -217,7 +217,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Wilson',
     email: 'robert.wilson@example.com',
     phone: '(555) 765-4321',
-    position: positions[6].id!, // Customer Support Representative
+    position: positions[6]?.id || '', // Customer Support Representative
     hire_date: '2017-06-30',
     status: 'terminated',
     created_at: new Date(),
@@ -228,7 +228,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Taylor',
     email: 'jennifer.taylor@example.com',
     phone: '(555) 567-8901',
-    position: positions[7].id!, // Sales Representative
+    position: positions[7]?.id || '', // Sales Representative
     hire_date: '2021-05-17',
     status: 'active',
     created_at: new Date(),
@@ -239,7 +239,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Anderson',
     email: 'thomas.anderson@example.com',
     phone: '(555) 654-3210',
-    position: positions[8].id!, // Legal Advisor
+    position: positions[8]?.id || '', // Legal Advisor
     hire_date: '2019-12-01',
     status: 'inactive',
     created_at: new Date(),
@@ -250,7 +250,7 @@ export const employees: IEmployeesInsert[] = [
     last_name: 'Garcia',
     email: 'lisa.garcia@example.com',
     phone: '(555) 432-1098',
-    position: positions[9].id!, // Research Scientist
+    position: positions[9]?.id || '', // Research Scientist
     hire_date: '2020-07-08',
     status: 'active',
     created_at: new Date(),
@@ -261,14 +261,14 @@ export const employees: IEmployeesInsert[] = [
 export const jobOpenings: IJobOpeningsInsert[] = [
   {
     id: uuidv4(),
-    position: positions[0].id!, // Software Engineer
+    position: positions[0]?.id || '', // Software Engineer
     description: 'We are looking for a Software Engineer to join our team.',
     status: 'open', // Matches the ENUM definition
     created_at: new Date(),
   },
   {
     id: uuidv4(),
-    position: positions[1].id!, // Product Manager
+    position: positions[1]?.id || '', // Product Manager
     description:
       'We are looking for a Product Manager to lead our product development.',
     status: 'open',
@@ -276,7 +276,7 @@ export const jobOpenings: IJobOpeningsInsert[] = [
   },
   {
     id: uuidv4(),
-    position: positions[2].id!, // UX/UI Designer
+    position: positions[2]?.id || '', // UX/UI Designer
     description:
       'We are looking for a UX/UI Designer to create user-friendly interfaces.',
     status: 'open',
@@ -284,7 +284,7 @@ export const jobOpenings: IJobOpeningsInsert[] = [
   },
   {
     id: uuidv4(),
-    position: positions[3].id!, // HR Coordinator
+    position: positions[3]?.id || '', // HR Coordinator
     description:
       'Join our HR team as a Coordinator to manage employee relations.',
     status: 'closed',
@@ -292,21 +292,21 @@ export const jobOpenings: IJobOpeningsInsert[] = [
   },
   {
     id: uuidv4(),
-    position: positions[4].id!, // Marketing Specialist
+    position: positions[4]?.id || '', // Marketing Specialist
     description: 'We need a Marketing Specialist to drive our campaigns.',
     status: 'open',
     created_at: new Date(),
   },
   {
     id: uuidv4(),
-    position: positions[5].id!, // Financial Analyst
+    position: positions[5]?.id || '', // Financial Analyst
     description: 'Seeking a Financial Analyst to manage company finances.',
     status: 'closed',
     created_at: new Date(),
   },
   {
     id: uuidv4(),
-    position: positions[6].id!, // Customer Support Representative
+    position: positions[6]?.id || '', // Customer Support Representative
     description:
       'Looking for a Customer Support Representative to assist clients.',
     status: 'open',
@@ -314,21 +314,21 @@ export const jobOpenings: IJobOpeningsInsert[] = [
   },
   {
     id: uuidv4(),
-    position: positions[7].id!, // Sales Representative
+    position: positions[7]?.id || '', // Sales Representative
     description: 'Join our Sales team to drive revenue growth.',
     status: 'closed',
     created_at: new Date(),
   },
   {
     id: uuidv4(),
-    position: positions[8].id!, // Legal Advisor
+    position: positions[8]?.id || '', // Legal Advisor
     description: 'We are hiring a Legal Advisor to oversee compliance.',
     status: 'open',
     created_at: new Date(),
   },
   {
     id: uuidv4(),
-    position: positions[9].id!, // Research Scientist
+    position: positions[9]?.id || '', // Research Scientist
     description:
       'Seeking a Research Scientist to innovate in our R&D department.',
     status: 'closed',
@@ -340,7 +340,7 @@ export const jobOpenings: IJobOpeningsInsert[] = [
 export const leaveManagement: ILeaveManagementInsert[] = [
   {
     id: uuidv4(),
-    employee: employees[0].id!, // John Doe
+    employee: employees[0]?.id || '', // John Doe
     leave_type: 'vacation',
     start_date: '2023-06-01',
     end_date: '2023-06-10',
@@ -349,7 +349,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[1].id!, // Jane Smith
+    employee: employees[1]?.id || '', // Jane Smith
     leave_type: 'sick_leave',
     start_date: '2023-07-15',
     end_date: '2023-07-20',
@@ -358,7 +358,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[2].id!, // Michael Johnson
+    employee: employees[2]?.id || '', // Michael Johnson
     leave_type: 'parental_leave',
     start_date: '2023-08-01',
     end_date: '2023-08-30',
@@ -367,7 +367,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[3].id!, // Emily Williams
+    employee: employees[3]?.id || '', // Emily Williams
     leave_type: 'vacation',
     start_date: '2023-09-10',
     end_date: '2023-09-15',
@@ -376,7 +376,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[4].id!, // David Brown
+    employee: employees[4]?.id || '', // David Brown
     leave_type: 'sick_leave',
     start_date: '2023-10-05',
     end_date: '2023-10-07',
@@ -385,7 +385,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[5].id!, // Sarah Miller
+    employee: employees[5]?.id || '', // Sarah Miller
     leave_type: 'vacation',
     start_date: '2023-11-20',
     end_date: '2023-11-25',
@@ -394,7 +394,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[6].id!, // Robert Wilson
+    employee: employees[6]?.id || '', // Robert Wilson
     leave_type: 'vacation', // Assuming "Unpaid Leave" maps to "vacation"
     start_date: '2023-12-01',
     end_date: '2023-12-10',
@@ -403,7 +403,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[7].id!, // Jennifer Taylor
+    employee: employees[7]?.id || '', // Jennifer Taylor
     leave_type: 'vacation',
     start_date: '2024-01-15',
     end_date: '2024-01-20',
@@ -412,7 +412,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[8].id!, // Thomas Anderson
+    employee: employees[8]?.id || '', // Thomas Anderson
     leave_type: 'medical_leave',
     start_date: '2024-02-01',
     end_date: '2024-02-15',
@@ -421,7 +421,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[9].id!, // Lisa Garcia
+    employee: employees[9]?.id || '', // Lisa Garcia
     leave_type: 'vacation',
     start_date: '2024-03-10',
     end_date: '2024-03-15',
@@ -434,7 +434,7 @@ export const leaveManagement: ILeaveManagementInsert[] = [
 export const payroll: IPayrollInsert[] = [
   {
     id: uuidv4(),
-    employee: employees[0].id!, // John Doe
+    employee: employees[0]?.id || '', // John Doe
     base_salary: 85000,
     bonus: 5000,
     deductions: 25500,
@@ -444,7 +444,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[1].id!, // Jane Smith
+    employee: employees[1]?.id || '', // Jane Smith
     base_salary: 95000,
     bonus: 7500,
     deductions: 30900,
@@ -454,7 +454,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[2].id!, // Michael Johnson
+    employee: employees[2]?.id || '', // Michael Johnson
     base_salary: 78000,
     bonus: 3000,
     deductions: 24300,
@@ -464,7 +464,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[3].id!, // Emily Williams
+    employee: employees[3]?.id || '', // Emily Williams
     base_salary: 72000,
     bonus: 2500,
     deductions: 22350,
@@ -474,7 +474,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[4].id!, // David Brown
+    employee: employees[4]?.id || '', // David Brown
     base_salary: 68000,
     bonus: 2000,
     deductions: 21000,
@@ -484,7 +484,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[5].id!, // Sarah Miller
+    employee: employees[5]?.id || '', // Sarah Miller
     base_salary: 82000,
     bonus: 4000,
     deductions: 25800,
@@ -494,7 +494,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[6].id!, // Robert Wilson
+    employee: employees[6]?.id || '', // Robert Wilson
     base_salary: 92000,
     bonus: 6000,
     deductions: 29400,
@@ -504,7 +504,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[7].id!, // Jennifer Taylor
+    employee: employees[7]?.id || '', // Jennifer Taylor
     base_salary: 75000,
     bonus: 3500,
     deductions: 23550,
@@ -514,7 +514,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[8].id!, // Thomas Anderson
+    employee: employees[8]?.id || '', // Thomas Anderson
     base_salary: 88000,
     bonus: 0,
     deductions: 26400,
@@ -524,7 +524,7 @@ export const payroll: IPayrollInsert[] = [
   },
   {
     id: uuidv4(),
-    employee: employees[9].id!, // Lisa Garcia
+    employee: employees[9]?.id || '', // Lisa Garcia
     base_salary: 70000,
     bonus: 2000,
     deductions: 21600,

@@ -11,23 +11,20 @@ import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { TypingIndicator } from './typing-indicator';
 import { cn } from '@/utils/shadcn';
+import type { IChat } from '../interface';
 
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
+  chat?: IChat;
 }
 
-export function ChatModal({ isOpen, onClose }: ChatModalProps) {
+export function ChatModal({ isOpen, onClose, chat }: ChatModalProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
-    initialMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: 'Hello! How can I help you with HR-related questions today?',
-      },
-    ],
+    id: chat?.id || '',
+    initialMessages: chat?.messages || [],
     api: '/api/graph-ai', // This would be your endpoint for chat functionality
     onResponse: () => {
       // Scroll to bottom when we get a response
@@ -36,6 +33,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
     onError: () => {
       toast.error('An error occurred while processing your request.');
     },
+    sendExtraMessageFields: true,
   });
 
   // Focus input when modal opens
@@ -58,7 +56,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
   }, [messages]);
 
   // If modal is not open, don't render anything
-  if (!isOpen) {
+  if (!isOpen || !chat) {
     return null;
   }
 
@@ -67,7 +65,7 @@ export function ChatModal({ isOpen, onClose }: ChatModalProps) {
       <div className="fixed inset-4 z-50 bg-background border rounded-lg shadow-lg flex flex-col max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between border-b p-4">
-          <h2 className="text-xl font-semibold">HR Assistant</h2>
+          <h2 className="text-xl font-semibold">{chat.name}</h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="size-5" />
             <span className="sr-only">Close</span>

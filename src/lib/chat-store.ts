@@ -1,27 +1,83 @@
-import { generateId, Message } from "ai";
-import { existsSync, mkdirSync } from "fs";
-import { writeFile } from "fs/promises";
-import path from "path";
+'use server';
 
-export async function createChat(): Promise<string> {
-	const id = generateId(); // generate a unique chat ID
-	await writeFile(getChatFile(id), "[]"); // create an empty chat file
-	return id;
-}
+import type { IChat } from '@/components/ai-chat/interface';
+import { db } from '@/db';
+import { chatsTable } from '@/db/schema/chat/chats';
+import { chatMessagesTable } from '@/db/schema/chat/messages';
+import { Message } from 'ai';
+import { revalidatePath } from 'next/cache';
 
-function getChatFile(id: string): string {
-	const chatDir = path.join(process.cwd(), ".chats");
-	if (!existsSync(chatDir)) mkdirSync(chatDir, { recursive: true });
-	return path.join(chatDir, `${id}.json`);
+export async function createChat(name: string): Promise<IChat | null> {
+  const results = await db
+    .insert(chatsTable)
+    .values({
+      name,
+    })
+    .returning({
+      id: chatsTable.id,
+      name: chatsTable.name,
+      created_at: chatsTable.created_at,
+    });
+
+  const insertedChat = results[0];
+
+  if (insertedChat) {
+    revalidatePath('/');
+
+    return {
+      id: insertedChat.id,
+      name: insertedChat.name,
+      created_at: insertedChat.created_at,
+      messages: [],
+    };
+  }
+
+  return null;
 }
 
 export async function saveChat({
-	id,
-	messages,
+  id,
+  messages,
 }: {
-	id: string;
-	messages: Message[];
+  id: string;
+  messages: Message[];
 }): Promise<void> {
-	const content = JSON.stringify(messages, null, 2);
-	await writeFile(getChatFile(id), content);
+  const lastMessage = messages[messages.length - 1];
+
+  if (lastMessage) {
+    const result = await db.insert(chatMessagesTable).values({
+      chat: id,
+      content: lastMessage.content,
+      role: lastMessage.role,
+    });
+
+    if (result.rowCount === 0) {
+      logSaveChatResult(lastMessage, 'error');
+    } else {
+      logSaveChatResult(lastMessage, 'success');
+      revalidatePath('/', 'layout');
+    }
+  } else {
+    console.error(
+      `No messages to save for chat with ID: ${id}. Timestamp: ${new Date().toLocaleDateString()}`
+    );
+  }
+}
+
+function logSaveChatResult(message: Message, result: 'success' | 'error') {
+  if (result === 'success') {
+    console.log(
+      `Role: ${message.role} | Content: ${message.content.substring(
+        0,
+        20
+      )}... | Timestamp: ${new Date().toLocaleDateString()} | Saved sucessfully`
+    );
+  } else {
+    console.error(
+      `Role: ${message.role} | Content: ${message.content.substring(
+        0,
+        20
+      )}... | Timestamp: ${new Date().toLocaleDateString()} | Failed to save`
+    );
+  }
 }

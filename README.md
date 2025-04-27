@@ -2,6 +2,8 @@
 
 This is a project to learn about AI development flows and challenges. The goal of this project is to learn how to integrate AI into our common tools and use it to generate results that would otherwise require dedicated coded modules.
 
+100% of the UI in this project is generated using [v0.dev](https://v0.dev), with minor adjustments from me.
+
 ## Getting Started
 
 ### AI Key
