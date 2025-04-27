@@ -12,51 +12,40 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { navItems } from './data';
+import { navItems } from './nav-items';
 import { ChatModal } from '../ai-chat/chat-modal';
-import { useState } from 'react';
+import { useReducer } from 'react';
 import { ChatListModal } from '../ai-chat/list-modal';
-import type { IChat } from '../ai-chat/interface';
 import { NewChatModal } from '../ai-chat/new-chat';
+import { aiModalReducer } from './reducer';
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const [isChatListOpen, setIsChatListOpen] = useState(false);
-  const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
-  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-  const [selectedChatId, setSelectedChatId] = useState<string | undefined>(
-    undefined
-  );
+  const [state, dispatch] = useReducer(aiModalReducer, {
+    modalType: undefined,
+    activeChatId: undefined,
+  });
 
-  // Handle opening the chat list
-  const handleOpenChatList = () => {
-    setIsChatListOpen(true);
-  };
+  function openChatModal(chatId: string) {
+    dispatch({
+      type: 'change_modal',
+      payload: { type: 'chatModal', chatId },
+    });
+  }
 
-  // Handle selecting a chat from the list
-  const handleSelectChat = (chatId: string) => {
-    setSelectedChatId(chatId);
-    setIsChatListOpen(false);
-    setIsChatModalOpen(true);
-  };
-
-  // Handle opening the new chat modal
-  const handleOpenNewChatModal = () => {
-    setIsChatListOpen(false);
-    setIsNewChatModalOpen(true);
-  };
-
-  // Handle creating a new chat
-  const handleCreateNewChat = (chat: IChat) => {
-    setSelectedChatId(chat.id);
-    setIsNewChatModalOpen(false);
-    setIsChatModalOpen(true);
-  };
-
-  // Handle closing the chat modal
-  const handleCloseChatModal = () => {
-    setIsChatModalOpen(false);
-  };
+  function toggleChatList() {
+    if (state.modalType === 'chatList') {
+      dispatch({
+        type: 'change_modal',
+        payload: { type: undefined },
+      });
+    } else {
+      dispatch({
+        type: 'change_modal',
+        payload: { type: 'chatList' },
+      });
+    }
+  }
 
   return (
     <Sidebar>
@@ -89,7 +78,7 @@ export function AppSidebar() {
         <div className="mt-auto">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleOpenChatList}>
+              <SidebarMenuButton onClick={toggleChatList}>
                 <MessageSquare className="size-5" />
                 <span>Chat with HR Assistant</span>
               </SidebarMenuButton>
@@ -101,24 +90,33 @@ export function AppSidebar() {
 
       {/* Chat List Modal */}
       <ChatListModal
-        isOpen={isChatListOpen}
-        onClose={() => setIsChatListOpen(false)}
-        onSelectChat={handleSelectChat}
-        onNewChat={handleOpenNewChatModal}
+        isOpen={state.modalType === 'chatList'}
+        onClose={toggleChatList}
+        onSelectChat={(chatId) => {
+          openChatModal(chatId);
+        }}
+        onNewChat={() => {
+          dispatch({
+            type: 'change_modal',
+            payload: { type: 'newChat' },
+          });
+        }}
       />
 
       {/* New Chat Modal */}
       <NewChatModal
-        isOpen={isNewChatModalOpen}
-        onClose={() => setIsNewChatModalOpen(false)}
-        onCreateChat={handleCreateNewChat}
+        isOpen={state.modalType === 'newChat'}
+        onClose={toggleChatList}
+        onCreateChat={(chat) => {
+          openChatModal(chat.id);
+        }}
       />
 
       {/* Chat Modal */}
       <ChatModal
-        isOpen={isChatModalOpen}
-        onClose={handleCloseChatModal}
-        selectedChatId={selectedChatId}
+        isOpen={state.modalType === 'chatModal'}
+        onClose={toggleChatList}
+        selectedChatId={state.activeChatId}
       />
     </Sidebar>
   );
