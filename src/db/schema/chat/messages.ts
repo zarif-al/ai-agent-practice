@@ -5,6 +5,7 @@ export const chatMessageRoleEnum = pgEnum('chat_message_role', [
   'user',
   'assistant',
   'system',
+  'data',
 ]);
 
 export const chatMessagesTable = pgTable('chat_messages', {
