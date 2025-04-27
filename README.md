@@ -32,3 +32,7 @@ Or you can look for free models that have the necessary requirements in [Open Ro
 4. Run `pnpm seed` to insert data into the database
 5. Run `pnpm dev`
 6. You can run `pnpm drizzle-kit-studio` to get open a nice UI for editing database entries
+
+### Modifying Database Schema
+
+If you modify the database schema then please update the [JSON](src/db/schema/tables.json) representation so that the AI has the latest context regarding the database.
