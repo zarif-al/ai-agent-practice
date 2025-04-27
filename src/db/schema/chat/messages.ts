@@ -23,3 +23,6 @@ export const chatMessagesTable = pgTable('chat_messages', {
   role: chatMessageRoleEnum('role').notNull(),
   content: varchar('content', { length: 10000 }).notNull(),
 });
+
+export type ChatMessageRoleEnum =
+  (typeof chatMessageRoleEnum)['enumValues'][number];
