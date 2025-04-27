@@ -3,10 +3,9 @@ export interface ChatListModalProps {
   onClose: () => void;
   onSelectChat: (chatId: string) => void;
   onNewChat: () => void;
-  chats: SimplifiedChat[];
 }
 
-interface SimplifiedChat {
+export interface SimplifiedChat {
   id: string;
   name: string;
   lastMessage: string;

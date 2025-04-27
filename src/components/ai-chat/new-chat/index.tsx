@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createChat } from '@/lib/chat-store';
 import type { IChat } from '../interface';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface NewChatModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function NewChatModal({
   onClose,
   onCreateChat,
 }: NewChatModalProps) {
+  const queryClient = useQueryClient();
   const [chatName, setChatName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +38,8 @@ export function NewChatModal({
     setIsLoading(true);
 
     const result = await createChat(chatName.trim());
+
+    queryClient.invalidateQueries({ queryKey: ['chat_list'] });
 
     if (!result) {
       setError('Failed to create chat');
