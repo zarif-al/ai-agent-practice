@@ -11,7 +11,7 @@ export const payrollTable = pgTable('payroll', {
   base_salary: integer('base_salary').notNull(),
   bonus: integer('bonus').notNull(),
   deductions: integer('deductions').notNull(),
-  net_salary: integer('tax').notNull(),
+  net_salary: integer('net_salary').notNull(),
   currency: currencyEnum('currency').notNull(),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
