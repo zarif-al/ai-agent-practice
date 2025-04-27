@@ -33,7 +33,7 @@
         "department": {
           "type": "uuid",
           "notNull": true,
-          "references": "departmentsTable.id",
+          "references": "departments.id",
           "onDelete": "cascade"
         },
         "created_at": {
@@ -52,7 +52,7 @@
         "employee": {
           "type": "uuid",
           "notNull": true,
-          "references": "employeesTable.id"
+          "references": "employees.id"
         },
         "base_salary": { "type": "integer", "notNull": true },
         "bonus": { "type": "integer", "notNull": true },
@@ -77,7 +77,7 @@
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "employee": {
           "type": "uuid",
-          "references": "employeesTable.id",
+          "references": "employees.id",
           "onDelete": "cascade"
         },
         "leave_type": {
@@ -111,7 +111,7 @@
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "position": {
           "type": "uuid",
-          "references": "positionsTable.id",
+          "references": "positions.id",
           "onDelete": "cascade"
         },
         "description": { "type": "varchar", "length": 255, "notNull": true },
@@ -144,7 +144,7 @@
         "phone": { "type": "varchar", "length": 255, "notNull": true },
         "position": {
           "type": "uuid",
-          "references": "positionsTable.id",
+          "references": "positions.id",
           "notNull": true
         },
         "hire_date": { "type": "date", "notNull": true },
@@ -194,7 +194,7 @@
         },
         "chat": {
           "type": "uuid",
-          "references": "chatsTable.id",
+          "references": "chats.id",
           "onDelete": "cascade",
           "notNull": true
         },
