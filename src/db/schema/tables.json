@@ -1,0 +1,202 @@
+{
+  "tables": [
+    {
+      "name": "departments",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "name": {
+          "type": "varchar",
+          "length": 255,
+          "notNull": true,
+          "unique": true
+        },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now",
+          "notNull": true
+        }
+      }
+    },
+    {
+      "name": "positions",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "title": {
+          "type": "varchar",
+          "length": 255,
+          "notNull": true,
+          "unique": true
+        },
+        "department": {
+          "type": "uuid",
+          "notNull": true,
+          "references": "departmentsTable.id",
+          "onDelete": "cascade"
+        },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now",
+          "notNull": true
+        }
+      }
+    },
+    {
+      "name": "payroll",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "employee": {
+          "type": "uuid",
+          "notNull": true,
+          "references": "employeesTable.id"
+        },
+        "base_salary": { "type": "integer", "notNull": true },
+        "bonus": { "type": "integer", "notNull": true },
+        "deductions": { "type": "integer", "notNull": true },
+        "net_salary": { "type": "integer", "notNull": true },
+        "currency": {
+          "type": "enum",
+          "values": ["USD", "BDT"],
+          "notNull": true
+        },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now"
+        }
+      }
+    },
+    {
+      "name": "leave_management",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "employee": {
+          "type": "uuid",
+          "references": "employeesTable.id",
+          "onDelete": "cascade"
+        },
+        "leave_type": {
+          "type": "enum",
+          "values": [
+            "vacation",
+            "sick_leave",
+            "parental_leave",
+            "medical_leave"
+          ],
+          "notNull": true
+        },
+        "start_date": { "type": "date", "notNull": true },
+        "end_date": { "type": "date", "notNull": true },
+        "status": {
+          "type": "enum",
+          "values": ["approved", "pending", "rejected"],
+          "notNull": true
+        },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now"
+        }
+      }
+    },
+    {
+      "name": "job_openings",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "position": {
+          "type": "uuid",
+          "references": "positionsTable.id",
+          "onDelete": "cascade"
+        },
+        "description": { "type": "varchar", "length": 255, "notNull": true },
+        "status": {
+          "type": "enum",
+          "values": ["open", "closed"],
+          "notNull": true
+        },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now",
+          "notNull": true
+        }
+      }
+    },
+    {
+      "name": "employees",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "first_name": { "type": "varchar", "length": 255, "notNull": true },
+        "last_name": { "type": "varchar", "length": 255, "notNull": true },
+        "email": {
+          "type": "varchar",
+          "length": 255,
+          "notNull": true,
+          "unique": true
+        },
+        "phone": { "type": "varchar", "length": 255, "notNull": true },
+        "position": {
+          "type": "uuid",
+          "references": "positionsTable.id",
+          "notNull": true
+        },
+        "hire_date": { "type": "date", "notNull": true },
+        "status": {
+          "type": "enum",
+          "values": [
+            "active",
+            "inactive",
+            "on_leave",
+            "terminated",
+            "probation"
+          ],
+          "notNull": true
+        },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now",
+          "notNull": true
+        }
+      }
+    },
+    {
+      "name": "chats",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "name": { "type": "varchar", "length": 100, "notNull": true },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now",
+          "notNull": true
+        }
+      }
+    },
+    {
+      "name": "chat_messages",
+      "columns": {
+        "id": { "type": "uuid", "primaryKey": true, "default": "random" },
+        "created_at": {
+          "type": "timestamp",
+          "withTimezone": true,
+          "default": "now",
+          "notNull": true
+        },
+        "chat": {
+          "type": "uuid",
+          "references": "chatsTable.id",
+          "onDelete": "cascade",
+          "notNull": true
+        },
+        "role": {
+          "type": "enum",
+          "values": ["user", "assistant", "system", "data"],
+          "notNull": true
+        },
+        "content": { "type": "varchar", "length": 10000, "notNull": true }
+      }
+    }
+  ]
+}
