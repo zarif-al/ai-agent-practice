@@ -2,7 +2,13 @@
 
 This is a project to learn about AI development flows and challenges. The goal of this project is to learn how to integrate AI into our common tools and use it to generate results that would otherwise require dedicated coded modules.
 
-100% of the UI in this project is generated using [v0.dev](https://v0.dev), with minor adjustments from me.
+## Technology Used
+
+This is a NextJS based project. Here is a breakdown of the additional tooling used:
+
+- **UI**: 100% of the UI in this project is generated using [v0.dev](https://v0.dev), with minor adjustments from me. Additionally I used tailwind and shadcn.
+- **Data Fetching**: This project uses Tanstack Query as much as possible to fetch data. We are not looking for cutting edge performance or security, so keeping the requests client side is fine.
+- **AI Tooling**: This project uses Vercel AI SDK and its various packages for all AI related features. For the model it uses a key from Open Router to access a google AI model with the necessary features.
 
 ## Getting Started
 
