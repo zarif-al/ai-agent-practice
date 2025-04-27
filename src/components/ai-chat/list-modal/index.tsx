@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { ChatListModalProps } from './interface';
 import { useQuery } from '@tanstack/react-query';
 import { fetchChatList } from './server/fetch-chat-list';
-import { ListArea } from './list-area';
+import { ListArea } from './components/list-area';
 
 export function ChatListModal({
   isOpen,

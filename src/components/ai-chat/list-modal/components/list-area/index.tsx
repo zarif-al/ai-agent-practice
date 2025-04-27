@@ -1,10 +1,10 @@
 import type { RefetchOptions } from '@tanstack/react-query';
-import type { SimplifiedChat } from '../interface';
 import { ChatListSkeleton } from './loader';
 import { ChatListError } from './error';
 import { Clock, MessageSquare, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
+import type { SimplifiedChat } from '../../interface';
 
 interface Props {
   refetch: (options?: RefetchOptions | undefined) => Promise<unknown>;
