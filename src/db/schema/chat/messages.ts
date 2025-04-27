@@ -9,7 +9,7 @@ export const chatMessageRoleEnum = pgEnum('chat_message_role', [
 
 export const chatMessagesTable = pgTable('chat_messages', {
   id: uuid('id').primaryKey().defaultRandom(),
-  created_at: timestamp('created_at').defaultNow(),
+  created_at: timestamp('created_at').defaultNow().notNull(),
   chat: uuid('chat')
     .references(() => chatsTable.id, {
       onDelete: 'cascade',
