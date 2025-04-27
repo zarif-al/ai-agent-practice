@@ -2,6 +2,7 @@
   "tables": [
     {
       "name": "departments",
+      "description": "Stores information about company departments.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "name": {
@@ -20,6 +21,7 @@
     },
     {
       "name": "positions",
+      "description": "Stores job positions and their associated departments.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "title": {
@@ -44,6 +46,7 @@
     },
     {
       "name": "payroll",
+      "description": "Manages employee payroll details including salary, bonuses, and deductions.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "employee": {
@@ -69,6 +72,7 @@
     },
     {
       "name": "leave_management",
+      "description": "Tracks employee leave requests and their statuses.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "employee": {
@@ -102,6 +106,7 @@
     },
     {
       "name": "job_openings",
+      "description": "Stores information about job openings and their statuses.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "position": {
@@ -125,6 +130,7 @@
     },
     {
       "name": "employees",
+      "description": "Stores employee details including personal and job-related information.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "first_name": { "type": "varchar", "length": 255, "notNull": true },
@@ -163,6 +169,7 @@
     },
     {
       "name": "chats",
+      "description": "Stores chat sessions for communication purposes.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "name": { "type": "varchar", "length": 100, "notNull": true },
@@ -176,6 +183,7 @@
     },
     {
       "name": "chat_messages",
+      "description": "Stores messages exchanged in chat sessions.",
       "columns": {
         "id": { "type": "uuid", "primaryKey": true, "default": "random" },
         "created_at": {
