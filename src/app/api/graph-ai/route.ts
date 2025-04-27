@@ -2,10 +2,30 @@ import { appendResponseMessages, streamText } from 'ai';
 import { saveChat } from '@/lib/chat-store';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { getSchemaAsString } from './context/database';
-// import { z } from "zod";
+import { z } from 'zod';
+
+const requestBodySchema = z.object({
+  messages: z.array(
+    z.object({
+      id: z.string(),
+      content: z.string(),
+      role: z.enum(['user', 'assistant', 'system', 'data']),
+    })
+  ),
+  id: z.string(),
+});
 
 export async function POST(req: Request) {
-  const { messages, id } = await req.json();
+  const body = await req.json();
+
+  const { success, data } = requestBodySchema.safeParse(body);
+
+  if (!success) {
+    console.error('Invalid request body:', data);
+    return new Response('Invalid request body', { status: 400 });
+  }
+
+  const { messages, id } = data;
 
   try {
     const openrouter = createOpenRouter({
@@ -38,39 +58,11 @@ export async function POST(req: Request) {
           }),
         });
       },
-      // tools: {
-      // 	validatePrompt: {
-      // 		description: "Validates the prompt and returns a boolean.",
-      // 		parameters: z.object({
-      // 			graphType: z.enum(["bar", "line", "pie"]),
-      // 			xAxis: z.string(),
-      // 			yAxis: z.string(),
-      // 		}),
-      // 		execute: async ({ graphType, xAxis, yAxis }) => {
-      // 			// Check if graphType is defined and is of the right type
-      // 			if (!graphType) {
-      // 				throw new Error("Graph type is not defined.");
-      // 			}
-
-      // 			if (!["bar", "line", "pie"].includes(graphType)) {
-      // 				throw new Error("Graph type is not valid.");
-      // 			}
-
-      // 			// Check if xAxis and yAxis are defined and are of the right type
-      // 			if (!xAxis || !yAxis) {
-      // 				throw new Error("xAxis or yAxis is not defined.");
-      // 			}
-
-      // 			if (typeof xAxis !== "string" || typeof yAxis !== "string") {
-      // 				throw new Error("xAxis or yAxis is not a string.");
-      // 			}
-      // 		},
-      // 	},
-      // },
     });
 
-    // console.log("Tool Calls:", toolCalls);
-    // console.log("Warnings:", warnings);
+    // consume the stream to ensure it runs to completion & triggers onFinish
+    // even when the client response is aborted:
+    result.consumeStream(); // no await
 
     return result.toDataStreamResponse();
   } catch (error) {
