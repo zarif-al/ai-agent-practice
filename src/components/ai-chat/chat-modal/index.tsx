@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { TypingIndicator } from './typing-indicator';
+import { TypingIndicator } from './components/typing-indicator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { fetchChat } from './server/fetch-chat';
-import { MessageArea } from './message-area';
+import { MessageArea } from './components/message-area';
 import { useQueryClient } from '@tanstack/react-query';
 
 interface ChatModalProps {
