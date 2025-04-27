@@ -12,6 +12,9 @@ export async function POST(req: Request) {
       apiKey: process.env.OPEN_ROUTER_API_KEY,
     });
 
+    // Save user message to the database
+    await saveChat({ id, messages });
+
     /**
      * Notes:
      * - It seems `generateObject` does not support tool calling, as this function calls tools internally.
