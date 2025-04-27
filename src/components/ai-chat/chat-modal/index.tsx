@@ -15,6 +15,7 @@ import { cn } from '@/utils/shadcn';
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
+  chatId?: string;
 }
 
 export function ChatModal({ isOpen, onClose }: ChatModalProps) {
