@@ -19,16 +19,12 @@ import { ChatListModal } from '../ai-chat/list-modal';
 import type { IChat } from '../ai-chat/interface';
 import { NewChatModal } from '../ai-chat/new-chat';
 
-interface IAppSidebarProps {
-  chats: IChat[];
-}
-
-export function AppSidebar({ chats }: IAppSidebarProps) {
+export function AppSidebar() {
   const pathname = usePathname();
   const [isChatListOpen, setIsChatListOpen] = useState(false);
   const [isNewChatModalOpen, setIsNewChatModalOpen] = useState(false);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<IChat | undefined>(
+  const [selectedChatId, setSelectedChatId] = useState<string | undefined>(
     undefined
   );
 
@@ -39,14 +35,7 @@ export function AppSidebar({ chats }: IAppSidebarProps) {
 
   // Handle selecting a chat from the list
   const handleSelectChat = (chatId: string) => {
-    const chat = chats.find((chat) => chat.id === chatId);
-
-    if (!chat) {
-      console.error('handleSelectChat => Chat not found');
-      return;
-    }
-
-    setSelectedChat(chat);
+    setSelectedChatId(chatId);
     setIsChatListOpen(false);
     setIsChatModalOpen(true);
   };
@@ -59,7 +48,7 @@ export function AppSidebar({ chats }: IAppSidebarProps) {
 
   // Handle creating a new chat
   const handleCreateNewChat = (chat: IChat) => {
-    setSelectedChat(chat);
+    setSelectedChatId(chat.id);
     setIsNewChatModalOpen(false);
     setIsChatModalOpen(true);
   };
@@ -116,18 +105,6 @@ export function AppSidebar({ chats }: IAppSidebarProps) {
         onClose={() => setIsChatListOpen(false)}
         onSelectChat={handleSelectChat}
         onNewChat={handleOpenNewChatModal}
-        chats={chats.map((chat) => ({
-          id: chat.id,
-          name: chat.name,
-          lastMessage:
-            chat.messages[chat.messages.length - 1]?.content.substring(
-              0,
-              100
-            ) || '',
-          messageCount: chat.messages.length,
-          lastUpdated:
-            chat.messages[chat.messages.length - 1]?.created_at || new Date(),
-        }))}
       />
 
       {/* New Chat Modal */}
@@ -141,7 +118,7 @@ export function AppSidebar({ chats }: IAppSidebarProps) {
       <ChatModal
         isOpen={isChatModalOpen}
         onClose={handleCloseChatModal}
-        chat={selectedChat}
+        selectedChatId={selectedChatId}
       />
     </Sidebar>
   );
