@@ -1,4 +1,4 @@
-# AI HR APPLICATION
+# AI Agent Practice
 
 This is a project to learn about AI development flows and challenges. The goal of this project is to learn how to integrate AI into our common tools and use it to generate results that would otherwise require dedicated coded modules.
 

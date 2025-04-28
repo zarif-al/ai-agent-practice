@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AI HR APP',
+  title: 'AI Agent Practice',
   description: 'An AI powered HR application',
 };
 
