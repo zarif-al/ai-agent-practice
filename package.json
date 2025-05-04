@@ -14,9 +14,9 @@
     "seed": "pnpm tsx src/db/seed/index.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^0.2.13",
     "@ai-sdk/react": "^1.2.9",
     "@hookform/resolvers": "^4.1.3",
-    "@openrouter/ai-sdk-provider": "^0.4.5",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.6",
