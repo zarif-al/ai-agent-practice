@@ -11,7 +11,7 @@ import { saveChat } from '@/lib/chat-store';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import tablesJSON from '@/db/schema/tables.json';
-import { queryDatabaseTool, validateQueryTool, weatherTool } from './tools';
+import { queryDatabaseTool } from './tools';
 
 const requestBodySchema = z.object({
   messages: z.array(
@@ -64,8 +64,6 @@ export async function POST(req: Request) {
       messages,
       maxSteps: 5,
       tools: {
-        weather: weatherTool,
-        validateQuery: validateQueryTool,
         queryDatabase: queryDatabaseTool,
       },
       onStepFinish({ toolCalls, finishReason, stepType }) {
