@@ -73,6 +73,34 @@ export function MessageArea({ isError, isLoading, messages, refetch }: IProps) {
         >
           {/* Message content */}
           <ReactMarkdown>{message.content}</ReactMarkdown>
+
+          {/* Render Tool Calls */}
+          {message.parts.map((part) => {
+            if (part.type === 'tool-invocation') {
+              const toolCall = part.toolInvocation;
+
+              if (toolCall.state === 'result') {
+                return (
+                  <div key={toolCall.toolCallId} className="mb-2">
+                    <p>
+                      <strong>Tool Call:</strong> {toolCall.toolName}
+                    </p>
+
+                    <pre>{JSON.stringify(toolCall.result, null, 2)}</pre>
+                  </div>
+                );
+              } else {
+                return (
+                  <div key={toolCall.toolCallId} className="mb-2">
+                    <p>
+                      <strong>Tool Call:</strong> {toolCall.toolName}
+                    </p>
+                    <p>Loading...</p>
+                  </div>
+                );
+              }
+            }
+          })}
         </div>
       </div>
     </div>
