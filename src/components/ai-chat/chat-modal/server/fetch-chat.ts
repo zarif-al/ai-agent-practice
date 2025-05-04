@@ -30,9 +30,10 @@ export async function fetchChat(id?: string): Promise<IChat | null> {
       name: chatsTable.name,
       message: {
         id: chatMessagesTable.id,
-        content: chatMessagesTable.content,
         created_at: chatMessagesTable.created_at,
         role: chatMessagesTable.role,
+        content: chatMessagesTable.content,
+        parts: chatMessagesTable.parts,
       },
       created_at: chatsTable.created_at,
     })
@@ -62,6 +63,7 @@ export async function fetchChat(id?: string): Promise<IChat | null> {
         content: row.message.content,
         created_at: row.message.created_at,
         role: row.message.role,
+        parts: row.message.parts || undefined,
       });
     }
   }

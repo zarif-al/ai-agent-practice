@@ -49,6 +49,7 @@ export async function saveChat({
       chat: id,
       content: lastMessage.content,
       role: lastMessage.role,
+      parts: lastMessage.parts,
     });
 
     if (result.rowCount === 0) {

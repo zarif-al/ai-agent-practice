@@ -30,6 +30,7 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
         content: chatMessagesTable.content,
         created_at: chatMessagesTable.created_at,
         role: chatMessagesTable.role,
+        parts: chatMessagesTable.parts,
       },
       created_at: chatsTable.created_at,
     })
@@ -58,6 +59,7 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
         content: row.message.content,
         created_at: row.message.created_at,
         role: row.message.role,
+        parts: row.message.parts || undefined,
       });
     }
   }
