@@ -1,5 +1,13 @@
-import { pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
+import {
+  jsonb,
+  pgEnum,
+  pgTable,
+  timestamp,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core';
 import { chatsTable } from './chats';
+import type { Message } from 'ai';
 
 export const chatMessageRoleEnum = pgEnum('chat_message_role', [
   'user',
@@ -22,6 +30,7 @@ export const chatMessagesTable = pgTable('chat_messages', {
     .notNull(),
   role: chatMessageRoleEnum('role').notNull(),
   content: varchar('content', { length: 10000 }).notNull(),
+  parts: jsonb('parts').$type<Message['parts']>(),
 });
 
 export type ChatMessageRoleEnum =
