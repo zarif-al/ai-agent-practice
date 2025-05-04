@@ -57,7 +57,8 @@ export async function POST(req: Request) {
          Schema: ${JSON.stringify(tablesJSON, null, 2)}
         ` +
         `Your job is to help answer any and all queries regarding this database.` +
-        `If the user wants to generate graphs based on data from this database you will first validate the users request against the schema to see if it is a valid request.` +
+        `If the user wants to query data from this database you will first validate the users request against the schema to see if it is a valid request.` +
+        `Do not proceed until the user provides a clear query with all necessary parameters.` +
         `Use the tools provided to address the users queries.` +
         `Do not make up any information or makeup any queries to the database.`,
       messages,
@@ -67,13 +68,11 @@ export async function POST(req: Request) {
         validateQuery: validateQueryTool,
         queryDatabase: queryDatabaseTool,
       },
-      onStepFinish({ toolCalls, toolResults, finishReason, usage }) {
-        // your own logic, e.g. for saving the chat history or recording usage
+      onStepFinish({ toolCalls, finishReason, stepType }) {
         console.log('Step finished:', {
-          toolCalls,
-          toolResults,
+          stepType,
+          toolCalls: toolCalls.map((tool) => tool.toolName),
           finishReason,
-          usage,
         });
       },
       async onFinish({ response }) {
