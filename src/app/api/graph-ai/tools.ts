@@ -28,6 +28,7 @@ export const queryDatabaseTool = tool({
       return {
         success: false,
         message: 'Error executing query',
+        error,
       };
     }
   },
