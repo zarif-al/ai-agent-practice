@@ -125,11 +125,11 @@ export function ChatModal({ isOpen, onClose, selectedChatId }: ChatModalProps) {
               onChange={handleInputChange}
               placeholder="Type your message..."
               className="flex-1"
-              disabled={status !== 'ready'}
+              disabled={status === 'submitted'}
             />
             <Button
               type="submit"
-              disabled={!input.trim() || status !== 'ready'}
+              disabled={!input.trim() || status === 'submitted'}
             >
               <Send className="size-4 mr-2" />
               Send
