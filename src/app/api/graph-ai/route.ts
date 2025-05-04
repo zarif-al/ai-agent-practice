@@ -1,8 +1,17 @@
-import { appendResponseMessages, streamText } from 'ai';
+import {
+  appendResponseMessages,
+  InvalidToolArgumentsError,
+  NoSuchToolError,
+  streamText,
+  ToolExecutionError,
+  APICallError,
+  TypeValidationError,
+} from 'ai';
 import { saveChat } from '@/lib/chat-store';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import tablesJSON from '@/db/schema/tables.json';
 import { z } from 'zod';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import tablesJSON from '@/db/schema/tables.json';
+import { queryDatabaseTool } from './tools';
 
 const requestBodySchema = z.object({
   messages: z.array(
@@ -28,8 +37,9 @@ export async function POST(req: Request) {
   const { messages, id } = data;
 
   try {
-    const openrouter = createOpenRouter({
-      apiKey: process.env.OPEN_ROUTER_API_KEY,
+    const lmstudio = createOpenAICompatible({
+      name: 'lmstudio',
+      baseURL: 'http://10.0.0.100:1234/v1',
     });
 
     // Save user message to the database
@@ -41,14 +51,28 @@ export async function POST(req: Request) {
      * 	 I am proceeding with `generateText` for now.
      */
     const result = await streamText({
-      model: openrouter.chat('google/gemini-2.0-flash-exp:free'),
+      model: lmstudio('qwen2.5-7b-instruct'),
       system:
         `Here is the database schema of the system you are working with:
          Schema: ${JSON.stringify(tablesJSON, null, 2)}
         ` +
-        `Your job is to help answer any and all queries regarding this database` +
-        `If the user wants to generate graphs based on data from this database you will first validate the users request against the schema to see if it is a valid request.`,
+        `Your job is to help answer any and all queries regarding this database.` +
+        `If the user wants to query data from this database you will first validate the users request against the schema to see if it is a valid request.` +
+        `Do not proceed until the user provides a clear query with all necessary parameters.` +
+        `Use the tools provided to address the users queries.` +
+        `Do not make up any information or makeup any queries to the database.`,
       messages,
+      maxSteps: 5,
+      tools: {
+        queryDatabase: queryDatabaseTool,
+      },
+      onStepFinish({ toolCalls, finishReason, stepType }) {
+        console.log('Step finished:', {
+          stepType,
+          toolCalls: toolCalls.map((tool) => tool.toolName),
+          finishReason,
+        });
+      },
       async onFinish({ response }) {
         await saveChat({
           id,
@@ -57,6 +81,21 @@ export async function POST(req: Request) {
             responseMessages: response.messages,
           }),
         });
+      },
+      onError({ error }) {
+        if (NoSuchToolError.isInstance(error)) {
+          console.error('No such tool error:', error.message);
+        } else if (InvalidToolArgumentsError.isInstance(error)) {
+          console.error('Invalid tool arguments error:', error.message);
+        } else if (ToolExecutionError.isInstance(error)) {
+          console.error('Tool execution error:', error.message);
+        } else if (APICallError.isInstance(error)) {
+          console.error('API call error:', error.message);
+        } else if (TypeValidationError.isInstance(error)) {
+          console.error('Type validation error:', error.message);
+        } else {
+          console.error('Unknown error:', error);
+        }
       },
     });
 
