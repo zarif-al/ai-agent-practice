@@ -69,12 +69,8 @@ export const queryDatabaseTool = tool({
     query: z.string().describe('The SQL query to execute'),
   }),
   execute: async ({ query }) => {
-    console.log('Executing query:', query);
-
     try {
       const results = await db.execute(sql.raw(query));
-
-      console.log('Query results:', results);
 
       return {
         success: true,
@@ -82,7 +78,7 @@ export const queryDatabaseTool = tool({
         data: results,
       };
     } catch (error) {
-      console.error('Error executing query:', error);
+      console.error('Query Database Tool Error => ', error);
 
       throw new Error('Error executing query');
     }
