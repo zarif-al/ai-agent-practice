@@ -4,6 +4,7 @@ import type { Message } from 'ai';
 export interface IChat {
   id: string;
   name: string;
+  // TODO: Can we use type Message here?
   messages: {
     id: string;
     created_at: Date;
