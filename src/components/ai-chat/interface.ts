@@ -1,4 +1,5 @@
 import type { ChatMessageRoleEnum } from '@/db/schema/chat/messages';
+import type { Message } from 'ai';
 
 export interface IChat {
   id: string;
@@ -8,6 +9,7 @@ export interface IChat {
     created_at: Date;
     role: ChatMessageRoleEnum;
     content: string;
+    parts: Message['parts'];
   }[];
   created_at: Date;
 }
