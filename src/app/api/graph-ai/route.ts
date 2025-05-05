@@ -10,7 +10,7 @@ import {
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { saveChat } from './utils/chat-store';
-import { queryDatabaseTool } from './utils/tools';
+import { generateGraphObjectsTool, queryDatabaseTool } from './utils/tools';
 import tablesJSON from '@/db/schema/tables.json';
 
 const requestBodySchema = z.object({
@@ -72,6 +72,7 @@ export async function POST(req: Request) {
       maxSteps: 5,
       tools: {
         queryDatabase: queryDatabaseTool,
+        generateGraphObjects: generateGraphObjectsTool,
       },
       onStepFinish({ toolCalls, finishReason, stepType }) {
         console.log('Step finished:', {
