@@ -1,9 +1,18 @@
 import 'server-only';
 
-import { tool } from 'ai';
+import {
+  tool,
+  APICallError,
+  generateObject,
+  InvalidToolArgumentsError,
+  NoSuchToolError,
+  ToolExecutionError,
+  TypeValidationError,
+} from 'ai';
 import { z } from 'zod';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 /**
  * This tool will query the database and return the results.
@@ -28,6 +37,152 @@ export const queryDatabaseTool = tool({
       return {
         success: false,
         message: 'Error executing query',
+        error,
+      };
+    }
+  },
+});
+
+/**
+ * This tool accepts SQL results and returns a structured object
+ */
+export const generateGraphObjectsTool = tool({
+  description:
+    'Format the SQL results to generate objects that can be used to render re-charts graphs',
+  parameters: z.object({
+    requestedGraphType: z
+      .enum(['bar', 'line', 'pie'])
+      .nullable()
+      .describe('The requested graph type'),
+    queryResponse: z
+      .array(z.record(z.union([z.string(), z.number()])))
+      .describe(
+        'The SQL query results from `queryDatabaseTool` tool call, that need to be formatted.'
+      ),
+  }),
+  execute: async ({ queryResponse, requestedGraphType }) => {
+    const LM_STUDIO_IP = process.env.LM_STUDIO_IP;
+
+    if (!LM_STUDIO_IP) {
+      console.error('LOCAL_LLM_IP environment variable is not set');
+      return new Response('Server error', { status: 500 });
+    }
+
+    try {
+      const lmstudio = createOpenAICompatible({
+        name: 'lmstudio',
+        baseURL: LM_STUDIO_IP,
+      });
+
+      const chartDataPointSchema = z
+        .record(
+          // Key
+          z
+            .string()
+            .describe(
+              "Dimension keys (e.g., 'Month') or Series Keys (e.g., 'Users')"
+            ),
+          // Value
+          z.union([z.string(), z.number()]).describe('Key Values')
+        )
+        .describe(
+          'object represents a single entry along the chart’s primary axis (typically the x-axis in a Cartesian chart, or the category axis in other types)'
+        );
+
+      /**
+       * Note:
+       * That nested, deeply constrained schema might:
+       * - Cause the SDK to build an invalid tool/function spec (not what OpenAI expects).
+       * - Lead to incompatible tool structures when passed to the OpenAI API.
+       * - Conflict with OpenAI's tool calling expectations (which require flat parameter lists for tool definitions).
+       *
+       * Action:
+       * - Look for another model in LMStudio with Tool Calling and Structured Output Support
+       * - Or look for a way to manipulate current model to support nested objects
+       *
+       */
+      const chartConfigSchema = z
+        .record(
+          // Key
+          z
+            .string()
+            .describe(
+              'The top-level keys in chartConfig match the series keys in chartData one-to-one.'
+            ),
+          // Value
+          z.object({
+            label: z
+              .string()
+              .describe(
+                'A human-readable name for display in tooltips, legends, or axes.'
+              ),
+            color: z
+              .string()
+              .describe(
+                'Visual styling metadata for the series (e.g., line color, bar fill, stroke pattern).'
+              ),
+          })
+        )
+        .describe(
+          'This is a configuration object that maps data series keys to their presentation metadata.'
+        );
+
+      const { object } = await generateObject({
+        model: lmstudio('qwen2.5-7b-instruct'),
+        // schemaName: 'reCharts_graphing_data',
+        // schemaDescription:
+        //   'The graph type and the data to be used to render the graph',
+        mode: 'json',
+        maxRetries: 1,
+        schema: z.object({
+          graphType: z.enum(['bar']),
+          chartDataSchema: z
+            .array(chartDataPointSchema)
+            .describe('Array of dynamic chart data rows'),
+          chartsConfigSchema: chartConfigSchema,
+        }),
+        system:
+          `You are a helpful assistant that formats SQL results to generate` +
+          `objects that can be used to render re-charts graphs.` +
+          `If the SQL results are not in the correct format, return an error message.` +
+          `If the SQL results are not sufficient to generate the requested graph type or any other graph type,` +
+          `return an error message.` +
+          `If the SQL results are sufficient to generate the requested graph type, return the graph type and the data.` +
+          `The data should be in the format that can be used to render re-charts graphs.`,
+        prompt:
+          `Based on the requested graph type you will format the SQL results to generate objects that can be used` +
+          `to render re-charts graphs:` +
+          `Query Response: ${JSON.stringify(queryResponse, null, 2)}.` +
+          `Requested Graph Type: ${requestedGraphType}. `,
+      });
+
+      return {
+        success: true,
+        message: 'Graph objects generated successfully',
+        data: {
+          graphType: object.graphType,
+          chartDataSchema: object.chartDataSchema,
+          chartsConfigSchema: object.chartsConfigSchema,
+        },
+      };
+    } catch (error) {
+      if (NoSuchToolError.isInstance(error)) {
+        console.error('No such tool error:', error.message);
+      } else if (InvalidToolArgumentsError.isInstance(error)) {
+        console.error('Invalid tool arguments error:', error.message);
+      } else if (ToolExecutionError.isInstance(error)) {
+        console.error('Tool execution error:', error.message);
+      } else if (APICallError.isInstance(error)) {
+        console.error('API call error:', error.message);
+      } else if (TypeValidationError.isInstance(error)) {
+        console.error('Type validation error:', error.message);
+      } else {
+        console.error('Unknown error:', error);
+      }
+
+      return {
+        success: false,
+        message: 'Error generating graph objects',
         error,
       };
     }
