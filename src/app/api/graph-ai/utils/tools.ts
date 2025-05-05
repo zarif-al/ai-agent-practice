@@ -12,7 +12,8 @@ import {
 import { z } from 'zod';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createOllama } from 'ollama-ai-provider';
+import { generateGraphToolSchemas } from './schemas';
 
 /**
  * This tool will query the database and return the results.
@@ -61,85 +62,30 @@ export const generateGraphObjectsTool = tool({
       ),
   }),
   execute: async ({ queryResponse, requestedGraphType }) => {
-    const LM_STUDIO_IP = process.env.LM_STUDIO_IP;
+    const OLLAMA_API_ENDPOINT = process.env.OLLAMA_API_ENDPOINT;
 
-    if (!LM_STUDIO_IP) {
-      console.error('LOCAL_LLM_IP environment variable is not set');
+    if (!OLLAMA_API_ENDPOINT) {
+      console.error('OLLAMA_API_ENDPOINT environment variable is not set');
       return new Response('Server error', { status: 500 });
     }
 
     try {
-      const lmstudio = createOpenAICompatible({
-        name: 'lmstudio',
-        baseURL: LM_STUDIO_IP,
+      const ollama = createOllama({
+        baseURL: OLLAMA_API_ENDPOINT,
       });
 
-      const chartDataPointSchema = z
-        .record(
-          // Key
-          z
-            .string()
-            .describe(
-              "Dimension keys (e.g., 'Month') or Series Keys (e.g., 'Users')"
-            ),
-          // Value
-          z.union([z.string(), z.number()]).describe('Key Values')
-        )
-        .describe(
-          'object represents a single entry along the chart’s primary axis (typically the x-axis in a Cartesian chart, or the category axis in other types)'
-        );
-
-      /**
-       * Note:
-       * That nested, deeply constrained schema might:
-       * - Cause the SDK to build an invalid tool/function spec (not what OpenAI expects).
-       * - Lead to incompatible tool structures when passed to the OpenAI API.
-       * - Conflict with OpenAI's tool calling expectations (which require flat parameter lists for tool definitions).
-       *
-       * Action:
-       * - Look for another model in LMStudio with Tool Calling and Structured Output Support
-       * - Or look for a way to manipulate current model to support nested objects
-       *
-       */
-      const chartConfigSchema = z
-        .record(
-          // Key
-          z
-            .string()
-            .describe(
-              'The top-level keys in chartConfig match the series keys in chartData one-to-one.'
-            ),
-          // Value
-          z.object({
-            label: z
-              .string()
-              .describe(
-                'A human-readable name for display in tooltips, legends, or axes.'
-              ),
-            color: z
-              .string()
-              .describe(
-                'Visual styling metadata for the series (e.g., line color, bar fill, stroke pattern).'
-              ),
-          })
-        )
-        .describe(
-          'This is a configuration object that maps data series keys to their presentation metadata.'
-        );
-
       const { object } = await generateObject({
-        model: lmstudio('qwen2.5-7b-instruct'),
-        // schemaName: 'reCharts_graphing_data',
-        // schemaDescription:
-        //   'The graph type and the data to be used to render the graph',
-        mode: 'json',
-        maxRetries: 1,
+        model: ollama('qwen2.5:7b', {
+          simulateStreaming: true,
+        }),
+        schemaName: 'reCharts_graphing_data',
+        schemaDescription:
+          'The graph type and the data to be used to render the graph. The acceptable values for the graph type are "bar", "line", "pie".',
+        maxRetries: 3,
         schema: z.object({
-          graphType: z.enum(['bar']),
-          chartDataSchema: z
-            .array(chartDataPointSchema)
-            .describe('Array of dynamic chart data rows'),
-          chartsConfigSchema: chartConfigSchema,
+          graphType: generateGraphToolSchemas.graphType,
+          chartDataSchema: generateGraphToolSchemas.chartDataSchema,
+          chartsConfigSchema: generateGraphToolSchemas.chartConfigSchema,
         }),
         system:
           `You are a helpful assistant that formats SQL results to generate` +

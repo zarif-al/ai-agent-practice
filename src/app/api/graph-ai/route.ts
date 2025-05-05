@@ -8,10 +8,10 @@ import {
   TypeValidationError,
 } from 'ai';
 import { z } from 'zod';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { saveChat } from './utils/chat-store';
 import { generateGraphObjectsTool, queryDatabaseTool } from './utils/tools';
 import tablesJSON from '@/db/schema/tables.json';
+import { createOllama } from 'ollama-ai-provider';
 
 const requestBodySchema = z.object({
   messages: z.array(
@@ -36,29 +36,25 @@ export async function POST(req: Request) {
 
   const { messages, id } = data;
 
-  const LM_STUDIO_IP = process.env.LM_STUDIO_IP;
+  const OLLAMA_API_ENDPOINT = process.env.OLLAMA_API_ENDPOINT;
 
-  if (!LM_STUDIO_IP) {
-    console.error('LOCAL_LLM_IP environment variable is not set');
+  if (!OLLAMA_API_ENDPOINT) {
+    console.error('OLLAMA_API_ENDPOINT environment variable is not set');
     return new Response('Server error', { status: 500 });
   }
 
   try {
-    const lmstudio = createOpenAICompatible({
-      name: 'lmstudio',
-      baseURL: LM_STUDIO_IP,
+    const ollama = createOllama({
+      baseURL: OLLAMA_API_ENDPOINT,
     });
 
     // Save user message to the database
     await saveChat({ id, messages });
 
-    /**
-     * Notes:
-     * - It seems `generateObject` does not support tool calling, as this function calls tools internally.
-     * 	 I am proceeding with `generateText` for now.
-     */
     const result = await streamText({
-      model: lmstudio('qwen2.5-7b-instruct'),
+      model: ollama('qwen2.5:7b', {
+        simulateStreaming: true,
+      }),
       system:
         `Here is the database schema of the system you are working with:
          Schema: ${JSON.stringify(tablesJSON, null, 2)}
