@@ -3,7 +3,7 @@
 import { db } from '@/db';
 import { chatsTable } from '@/db/schema/chat/chats';
 import { chatMessagesTable } from '@/db/schema/chat/messages';
-import { asc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { IChat } from '../../interface';
 import type { SimplifiedChat } from '../interface';
 
@@ -36,7 +36,7 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
     })
     .from(chatsTable)
     .leftJoin(chatMessagesTable, eq(chatsTable.id, chatMessagesTable.chat))
-    .orderBy(asc(chatMessagesTable.created_at));
+    .orderBy(desc(chatMessagesTable.created_at));
 
   /**
    * Process the raw chats data into a more structured format.
