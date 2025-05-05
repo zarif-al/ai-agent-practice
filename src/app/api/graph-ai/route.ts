@@ -36,10 +36,17 @@ export async function POST(req: Request) {
 
   const { messages, id } = data;
 
+  const LM_STUDIO_IP = process.env.LM_STUDIO_IP;
+
+  if (!LM_STUDIO_IP) {
+    console.error('LOCAL_LLM_IP environment variable is not set');
+    return new Response('Server error', { status: 500 });
+  }
+
   try {
     const lmstudio = createOpenAICompatible({
       name: 'lmstudio',
-      baseURL: 'http://10.0.0.100:1234/v1',
+      baseURL: LM_STUDIO_IP,
     });
 
     // Save user message to the database
