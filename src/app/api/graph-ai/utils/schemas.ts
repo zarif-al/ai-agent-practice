@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// TODO: There should be a cleaner way to manage this
 export const generateGraphToolSchemas = {
   graphType: z
     .enum(['bar', 'line', 'pie'])
