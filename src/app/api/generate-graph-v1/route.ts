@@ -11,7 +11,7 @@ import { z } from 'zod';
 import tablesJSON from '@/db/schema/tables.json';
 import { ollamaModel } from '@/lib/model';
 import { saveChat } from '@/utils/chat-store';
-import { generateGraphObjectsTool, queryDatabaseTool } from './tool';
+import { generateGraphObjectsTool } from './tool';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -32,18 +32,18 @@ export async function POST(req: Request) {
     const result = await streamText({
       model: ollamaModel,
       system:
-        `Here is the database schema of the system you are working with:
+        `Here is the database schema of the system you are working with :
 				 Schema: ${JSON.stringify(tablesJSON, null, 2)}
 				` +
-        `Your job is to help answer any and all queries regarding this database.` +
-        `If the user wants to query data from this database you will first validate the users request against the schema to see if it is a valid request.` +
-        `Do not proceed until the user provides a clear query with all necessary parameters.` +
-        `Use the tools provided to address the users queries.` +
-        `Do not make up any information or makeup any queries to the database.`,
+        `Your job is to help answer any and all queries regarding this database. ` +
+        `If the user wants to query data from this database you will first validate the users request against the schema to see if it is a valid request. ` +
+        `Do not proceed until the user provides a clear query with all necessary parameters. ` +
+        `Use the tools provided to address the users queries. ` +
+        `Do not make up any information or makeup any queries to the database. ` +
+        `If any tool returns an error then try again.`,
       messages,
       maxSteps: 5,
       tools: {
-        queryDatabase: queryDatabaseTool,
         generateGraphObjects: generateGraphObjectsTool,
       },
       onStepFinish({ toolCalls, finishReason, stepType }) {
