@@ -71,9 +71,6 @@ export function MessageArea({ isError, isLoading, messages, refetch }: IProps) {
             message.role !== 'user' && 'bg-muted text-foreground'
           )}
         >
-          {/* Message content */}
-          <ReactMarkdown>{message.content}</ReactMarkdown>
-
           {/* Render Tool Calls */}
           {message.parts.map((part) => {
             if (part.type === 'tool-invocation') {
@@ -101,6 +98,9 @@ export function MessageArea({ isError, isLoading, messages, refetch }: IProps) {
               }
             }
           })}
+
+          {/* Message content */}
+          <ReactMarkdown>{message.content}</ReactMarkdown>
         </div>
       </div>
     </div>

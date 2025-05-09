@@ -11,7 +11,7 @@ import {
 import { db } from '@/db';
 import { employeesTable } from '@/db/schema/employees';
 import { payrollTable } from '@/db/schema/payroll';
-import { formatCurrency } from '@/lib/helpers';
+import { formatCurrency } from '@/utils/helpers';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 

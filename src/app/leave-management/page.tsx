@@ -14,7 +14,7 @@ import {
   formatLeaveStatus,
   formatLeaveType,
   getLeaveStatusColor,
-} from '@/lib/helpers';
+} from '@/utils/helpers';
 import { db } from '@/db';
 import { leaveManagementTable } from '@/db/schema/leave-management';
 import { employeesTable } from '@/db/schema/employees';

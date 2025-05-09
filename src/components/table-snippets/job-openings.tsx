@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Briefcase, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { TableSnippetEmpty } from './empty';
-import { formatJobStatus, getJobStatusColor } from '@/lib/helpers';
+import { formatJobStatus, getJobStatusColor } from '@/utils/helpers';
 import { db } from '@/db';
 import { jobOpeningsTable } from '@/db/schema/job-openings';
 import { positionsTable } from '@/db/schema/positions';

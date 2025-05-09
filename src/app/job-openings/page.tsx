@@ -12,7 +12,7 @@ import { db } from '@/db';
 import { departmentsTable } from '@/db/schema/departments';
 import { jobOpeningsTable } from '@/db/schema/job-openings';
 import { positionsTable } from '@/db/schema/positions';
-import { formatJobStatus, getJobStatusColor } from '@/lib/helpers';
+import { formatJobStatus, getJobStatusColor } from '@/utils/helpers';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 
