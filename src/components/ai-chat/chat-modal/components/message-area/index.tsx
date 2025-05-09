@@ -5,6 +5,7 @@ import { ChatModalError } from './error';
 import { cn } from '@/utils/shadcn';
 import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { generateGraphObjectsToolResult } from '@/app/api/generate-graph-v1/schemas';
 
 interface IProps {
   refetch: (options?: RefetchOptions | undefined) => Promise<unknown>;
@@ -76,16 +77,33 @@ export function MessageArea({ isError, isLoading, messages, refetch }: IProps) {
             if (part.type === 'tool-invocation') {
               const toolCall = part.toolInvocation;
 
-              if (toolCall.state === 'result') {
-                return (
-                  <div key={toolCall.toolCallId} className="mb-2">
-                    <p>
-                      <strong>Tool Call:</strong> {toolCall.toolName}
-                    </p>
-
-                    <pre>{JSON.stringify(toolCall.result, null, 2)}</pre>
-                  </div>
+              if (
+                toolCall.state === 'result' &&
+                toolCall.toolName == 'generateGraphObjects'
+              ) {
+                const toolCallResult = generateGraphObjectsToolResult.safeParse(
+                  toolCall.result.data
                 );
+
+                if (toolCallResult.success) {
+                  return (
+                    <div key={toolCall.toolCallId} className="mb-2">
+                      <p>
+                        <strong>Tool Call:</strong> {toolCall.toolName}
+                      </p>
+
+                      <pre>{JSON.stringify(toolCallResult.data, null, 2)}</pre>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div key={toolCall.toolCallId} className="mb-2">
+                      <p>
+                        <strong>Error:</strong> Failed to parse generated object
+                      </p>
+                    </div>
+                  );
+                }
               } else {
                 return (
                   <div key={toolCall.toolCallId} className="mb-2">
