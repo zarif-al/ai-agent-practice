@@ -12,8 +12,8 @@ import {
 import { z } from 'zod';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
-import { createOllama } from 'ollama-ai-provider';
 import { generateGraphToolSchemas } from './schemas';
+import { ollamaModel } from '@/lib/model';
 
 /**
  * This tool will query the database and return the results.
@@ -49,39 +49,32 @@ export const queryDatabaseTool = tool({
  */
 export const generateGraphObjectsTool = tool({
   description:
-    'Format the SQL results to generate objects that can be used to render re-charts graphs',
+    'Format the SQL results to generate objects that can be used to render re-charts graphs.' +
+    'This tool should only be used if the `queryDatabaseTool` returns a successful response.',
   parameters: z.object({
     requestedGraphType: z
       .enum(['bar', 'line', 'pie'])
       .nullable()
       .describe('The requested graph type'),
     queryResponse: z
-      .array(z.record(z.union([z.string(), z.number()])))
+      .array(z.record(z.string(), z.union([z.string(), z.number()])))
       .describe(
-        'The SQL query results from `queryDatabaseTool` tool call, that need to be formatted.'
+        'The SQL query results from `queryDatabaseTool` tool call, that need to be formatted. Do not provide any hallucinated data.'
       ),
   }),
   execute: async ({ queryResponse, requestedGraphType }) => {
-    const OLLAMA_API_ENDPOINT = process.env.OLLAMA_API_ENDPOINT;
-
-    if (!OLLAMA_API_ENDPOINT) {
-      console.error('OLLAMA_API_ENDPOINT environment variable is not set');
-      return new Response('Server error', { status: 500 });
-    }
+    console.log('Generate Graph Objects Tool => ', {
+      queryResponse,
+      requestedGraphType,
+    });
 
     try {
-      const ollama = createOllama({
-        baseURL: OLLAMA_API_ENDPOINT,
-      });
-
       const { object } = await generateObject({
-        model: ollama('qwen2.5:7b', {
-          simulateStreaming: true,
-        }),
+        model: ollamaModel,
         schemaName: 'reCharts_graphing_data',
         schemaDescription:
           'The graph type and the data to be used to render the graph. The acceptable values for the graph type are "bar", "line", "pie".',
-        maxRetries: 3,
+        maxRetries: 1,
         schema: z.object({
           graphType: generateGraphToolSchemas.graphType,
           chartDataSchema: generateGraphToolSchemas.chartDataSchema,

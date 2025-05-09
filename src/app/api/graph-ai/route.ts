@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { saveChat } from './utils/chat-store';
 import { generateGraphObjectsTool, queryDatabaseTool } from './utils/tools';
 import tablesJSON from '@/db/schema/tables.json';
-import { createOllama } from 'ollama-ai-provider';
+import { ollamaModel } from '@/lib/model';
 
 const requestBodySchema = z.object({
   messages: z.array(
@@ -36,25 +36,12 @@ export async function POST(req: Request) {
 
   const { messages, id } = data;
 
-  const OLLAMA_API_ENDPOINT = process.env.OLLAMA_API_ENDPOINT;
-
-  if (!OLLAMA_API_ENDPOINT) {
-    console.error('OLLAMA_API_ENDPOINT environment variable is not set');
-    return new Response('Server error', { status: 500 });
-  }
-
   try {
-    const ollama = createOllama({
-      baseURL: OLLAMA_API_ENDPOINT,
-    });
-
     // Save user message to the database
     await saveChat({ id, messages });
 
     const result = await streamText({
-      model: ollama('qwen2.5:7b', {
-        simulateStreaming: true,
-      }),
+      model: ollamaModel,
       system:
         `Here is the database schema of the system you are working with:
          Schema: ${JSON.stringify(tablesJSON, null, 2)}
