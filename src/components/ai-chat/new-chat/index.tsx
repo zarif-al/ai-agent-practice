@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { IChat } from '../interface';
 import { useQueryClient } from '@tanstack/react-query';
-import { createChat } from '@/app/api/graph-ai/utils/chat-store';
+import { createChat } from '@/utils/chat-store';
 
 interface NewChatModalProps {
   isOpen: boolean;
