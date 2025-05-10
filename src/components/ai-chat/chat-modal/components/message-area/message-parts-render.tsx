@@ -1,4 +1,4 @@
-import { generateGraphObjectsToolResult } from '@/app/api/generate-graph-v1/schemas';
+import { graphObjectSchema } from '@/app/api/generate-graph-v1/schemas';
 import { Chart } from '@/components/chart';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type Message } from 'ai';
@@ -31,7 +31,7 @@ export function MessagePartsRender({ parts }: IMessagePartsRender) {
             }
 
             // Attempt to parse result
-            const parseResult = generateGraphObjectsToolResult.safeParse(
+            const parseResult = graphObjectSchema.safeParse(
               toolCall.result.data
             );
 

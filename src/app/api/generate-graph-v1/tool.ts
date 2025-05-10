@@ -14,7 +14,7 @@ import { sql } from 'drizzle-orm';
 import { ollamaModel } from '@/lib/model';
 import { z } from 'zod';
 import { log } from '@/utils/logger';
-import { generateGraphObjectsToolResult } from './schemas';
+import { graphObjectSchema } from './schemas';
 
 /**
  * This tool generates graph objects based on the provided SQL query and requested graph type.
@@ -55,7 +55,7 @@ export const generateGraphObjectsTool = tool({
         schemaDescription:
           'The graph type and the data to be used to render the graph. The acceptable values for the graph type are "bar", "line", "pie".',
         maxRetries: 1,
-        schema: generateGraphObjectsToolResult,
+        schema: graphObjectSchema,
         system:
           `You will be provided SQL query results and a requested graph type.` +
           `Your job is to format the SQL results into a JSON object that can be used to render re-charts graphs.`,

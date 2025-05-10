@@ -51,8 +51,12 @@ const chartConfigSchema = z
     'This is a configuration object that maps data series keys to their presentation metadata.'
   );
 
-export const generateGraphObjectsToolResult = z.object({
+export const graphObjectSchema = z.object({
   graphType: graphType,
   chartData: chartDataSchema,
   chartsConfig: chartConfigSchema,
+  xAxisDataKey: z
+    .string()
+    .optional()
+    .describe('The x-axis data key. This is required for bar charts.'),
 });
