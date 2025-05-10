@@ -28,7 +28,7 @@ export async function createChat(name: string): Promise<IChat | null> {
     return {
       id: insertedChat.id,
       name: insertedChat.name,
-      created_at: insertedChat.created_at,
+      createdAt: insertedChat.created_at,
       messages: [],
     };
   }

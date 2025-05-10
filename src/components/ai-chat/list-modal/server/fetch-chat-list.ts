@@ -49,7 +49,7 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
         id: row.id,
         name: row.name,
         messages: [],
-        created_at: row.created_at,
+        createdAt: row.created_at,
       });
     }
 
@@ -57,9 +57,9 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
       chatsMap.get(row.id)!.messages.push({
         id: row.message.id,
         content: row.message.content,
-        created_at: row.message.created_at,
+        createdAt: row.message.created_at,
         role: row.message.role,
-        parts: row.message.parts || undefined,
+        parts: row.message.parts || [],
       });
     }
   }
@@ -74,6 +74,6 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
       chat.messages[chat.messages.length - 1]?.content.substring(0, 100) || '',
     messageCount: chat.messages.length,
     lastUpdated:
-      chat.messages[chat.messages.length - 1]?.created_at || new Date(),
+      chat.messages[chat.messages.length - 1]?.createdAt || new Date(),
   }));
 }
