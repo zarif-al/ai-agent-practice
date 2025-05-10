@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header';
-import { Skeleton } from '@/components/ui/skeleton';
+import { AppHeader } from '@/components/global/app-header';
+import { Skeleton } from '@/components/global/ui/skeleton';
 
 export default function Loading() {
   return (

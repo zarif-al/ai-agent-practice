@@ -1,9 +1,9 @@
-import { AppHeader } from '@/components/app-header';
-import { EmployeeTableSnippet } from '@/components/table-snippets/employee.table';
-import { JobOpeningsSnippet } from '@/components/table-snippets/job-openings';
-import { LeaveRequestsSnippet } from '@/components/table-snippets/leave-requests';
-import { PayrollSnippet } from '@/components/table-snippets/payroll';
-import { TableSnippetSkeleton } from '@/components/table-snippets/skeleton';
+import { AppHeader } from '@/components/global/app-header';
+import { EmployeeTableSnippet } from '@/components/ai-dashboard/table-snippets/employee.table';
+import { JobOpeningsSnippet } from '@/components/ai-dashboard/table-snippets/job-openings';
+import { LeaveRequestsSnippet } from '@/components/ai-dashboard/table-snippets/leave-requests';
+import { PayrollSnippet } from '@/components/ai-dashboard/table-snippets/payroll';
+import { TableSnippetSkeleton } from '@/components/ai-dashboard/table-snippets/skeleton';
 import { Suspense } from 'react';
 
 export default function Dashboard() {

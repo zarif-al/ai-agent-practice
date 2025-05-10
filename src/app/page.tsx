@@ -6,8 +6,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from '@/components/global/ui/card';
+import { Button } from '@/components/global/ui/button';
 import { ArrowRight, Bot, FileSearch } from 'lucide-react';
 
 export default function Page() {

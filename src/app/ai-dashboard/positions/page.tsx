@@ -1,4 +1,4 @@
-import { AppHeader } from '@/components/app-header';
+import { AppHeader } from '@/components/global/app-header';
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/global/ui/table';
 import { db } from '@/db';
 import { departmentsTable } from '@/db/schema/departments';
 import { positionsTable } from '@/db/schema/positions';

@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header';
-import { EmptyState } from '@/components/empty-state';
+import { AppHeader } from '@/components/global/app-header';
+import { EmptyState } from '@/components/ai-dashboard/empty-state';
 import {
   Table,
   TableBody,
@@ -7,12 +7,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/global/ui/table';
 import { db } from '@/db';
 import { departmentsTable } from '@/db/schema/departments';
 import { jobOpeningsTable } from '@/db/schema/job-openings';
 import { positionsTable } from '@/db/schema/positions';
-import { formatJobStatus, getJobStatusColor } from '@/utils/helpers';
+import {
+  formatJobStatus,
+  getJobStatusColor,
+} from '@/utils/ai-dashboard/helpers';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 

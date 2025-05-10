@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/app-sidebar';
-import QueryProvider from '@/components/query-provider';
+import { SidebarInset, SidebarProvider } from '@/components/global/ui/sidebar';
+import { AppSidebar } from '@/components/ai-dashboard/app-sidebar';
+import QueryProvider from '@/components/global/query-provider';
 
 export const metadata: Metadata = {
   title: 'AI Dashboard',

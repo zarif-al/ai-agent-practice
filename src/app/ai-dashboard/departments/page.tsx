@@ -1,4 +1,4 @@
-import { AppHeader } from '@/components/app-header';
+import { AppHeader } from '@/components/global/app-header';
 import {
   Table,
   TableBody,
@@ -6,9 +6,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/global/ui/table';
 import { notFound } from 'next/navigation';
-import { EmptyState } from '@/components/empty-state';
+import { EmptyState } from '@/components/ai-dashboard/empty-state';
 import { db } from '@/db';
 import { departmentsTable } from '@/db/schema/departments';
 

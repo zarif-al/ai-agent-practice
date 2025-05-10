@@ -1,4 +1,4 @@
-import { AppHeader } from '@/components/app-header';
+import { AppHeader } from '@/components/global/app-header';
 import {
   Table,
   TableBody,
@@ -6,15 +6,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/global/ui/table';
 import { notFound } from 'next/navigation';
-import { EmptyState } from '@/components/empty-state';
+import { EmptyState } from '@/components/ai-dashboard/empty-state';
 import {
   calculateLeaveDays,
   formatLeaveStatus,
   formatLeaveType,
   getLeaveStatusColor,
-} from '@/utils/helpers';
+} from '@/utils/ai-dashboard/helpers';
 import { db } from '@/db';
 import { leaveManagementTable } from '@/db/schema/leave-management';
 import { employeesTable } from '@/db/schema/employees';

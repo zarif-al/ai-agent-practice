@@ -10,7 +10,7 @@ import {
 import { z } from 'zod';
 import tablesJSON from '@/db/schema/tables.json';
 import { ollamaModel } from '@/lib/model';
-import { saveChat } from '@/utils/chat-store';
+import { saveChat } from '@/utils/ai-dashboard/chat-store';
 import { generateGraphObjectsTool } from './tool';
 
 export async function POST(req: Request) {
