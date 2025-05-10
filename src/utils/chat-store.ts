@@ -6,6 +6,7 @@ import { chatsTable } from '@/db/schema/chat/chats';
 import { chatMessagesTable } from '@/db/schema/chat/messages';
 import { Message } from 'ai';
 import { revalidatePath } from 'next/cache';
+import { log } from './logger';
 
 export async function createChat(name: string): Promise<IChat | null> {
   const results = await db
@@ -27,7 +28,7 @@ export async function createChat(name: string): Promise<IChat | null> {
     return {
       id: insertedChat.id,
       name: insertedChat.name,
-      created_at: insertedChat.created_at,
+      createdAt: insertedChat.created_at,
       messages: [],
     };
   }
@@ -49,6 +50,7 @@ export async function saveChat({
       chat: id,
       content: lastMessage.content,
       role: lastMessage.role,
+      parts: lastMessage.parts,
     });
 
     if (result.rowCount === 0) {
@@ -58,7 +60,7 @@ export async function saveChat({
       revalidatePath('/', 'layout');
     }
   } else {
-    console.error(
+    log.error(
       `No messages to save for chat with ID: ${id}. Timestamp: ${new Date().toLocaleDateString()}`
     );
   }
@@ -66,14 +68,14 @@ export async function saveChat({
 
 function logSaveChatResult(message: Message, result: 'success' | 'error') {
   if (result === 'success') {
-    console.log(
+    log.info(
       `Role: ${message.role} | Content: ${message.content.substring(
         0,
         20
       )}... | Timestamp: ${new Date().toLocaleDateString()} | Saved sucessfully`
     );
   } else {
-    console.error(
+    log.error(
       `Role: ${message.role} | Content: ${message.content.substring(
         0,
         20

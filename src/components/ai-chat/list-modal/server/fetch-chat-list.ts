@@ -3,7 +3,7 @@
 import { db } from '@/db';
 import { chatsTable } from '@/db/schema/chat/chats';
 import { chatMessagesTable } from '@/db/schema/chat/messages';
-import { asc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { IChat } from '../../interface';
 import type { SimplifiedChat } from '../interface';
 
@@ -30,12 +30,13 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
         content: chatMessagesTable.content,
         created_at: chatMessagesTable.created_at,
         role: chatMessagesTable.role,
+        parts: chatMessagesTable.parts,
       },
       created_at: chatsTable.created_at,
     })
     .from(chatsTable)
     .leftJoin(chatMessagesTable, eq(chatsTable.id, chatMessagesTable.chat))
-    .orderBy(asc(chatMessagesTable.created_at));
+    .orderBy(desc(chatMessagesTable.created_at));
 
   /**
    * Process the raw chats data into a more structured format.
@@ -48,7 +49,7 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
         id: row.id,
         name: row.name,
         messages: [],
-        created_at: row.created_at,
+        createdAt: row.created_at,
       });
     }
 
@@ -56,8 +57,9 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
       chatsMap.get(row.id)!.messages.push({
         id: row.message.id,
         content: row.message.content,
-        created_at: row.message.created_at,
+        createdAt: row.message.created_at,
         role: row.message.role,
+        parts: row.message.parts || [],
       });
     }
   }
@@ -72,6 +74,6 @@ export async function fetchChatList(): Promise<SimplifiedChat[]> {
       chat.messages[chat.messages.length - 1]?.content.substring(0, 100) || '',
     messageCount: chat.messages.length,
     lastUpdated:
-      chat.messages[chat.messages.length - 1]?.created_at || new Date(),
+      chat.messages[chat.messages.length - 1]?.createdAt || new Date(),
   }));
 }

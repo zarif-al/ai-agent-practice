@@ -5,6 +5,8 @@ import { ChatModalError } from './error';
 import { cn } from '@/utils/shadcn';
 import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { MessagePartsRender } from './message-parts-render';
+import { formatTimestamp } from '@/utils/helpers';
 
 interface IProps {
   refetch: (options?: RefetchOptions | undefined) => Promise<unknown>;
@@ -64,15 +66,29 @@ export function MessageArea({ isError, isLoading, messages, refetch }: IProps) {
         </div>
 
         {/* Message bubble with content */}
-        <div
-          className={cn(
-            'rounded-lg px-4 py-2 prose',
-            message.role === 'user' && 'bg-primary text-primary-foreground',
-            message.role !== 'user' && 'bg-muted text-foreground'
-          )}
-        >
-          {/* Message content */}
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+        <div className="flex flex-col">
+          <div
+            className={cn(
+              'rounded-lg px-4 py-2 prose',
+              message.role === 'user' && 'bg-primary text-primary-foreground',
+              message.role !== 'user' && 'bg-muted text-foreground'
+            )}
+          >
+            {/* Render Tool Calls */}
+            <MessagePartsRender parts={message.parts} />
+
+            {/* Message content */}
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+
+            {/* Timestamp */}
+            <span
+              className={`text-xs text-muted-foreground mt-1 ${
+                message.role === 'user' ? 'text-right' : 'text-left'
+              }`}
+            >
+              {formatTimestamp(message.createdAt)}
+            </span>
+          </div>
         </div>
       </div>
     </div>

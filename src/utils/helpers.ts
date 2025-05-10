@@ -4,6 +4,7 @@ import type {
   LeaveRequestStatusEnum,
   LeaveTypeEnum,
 } from '@/db/schema/leave-management';
+import { format } from 'date-fns';
 
 // Helper function to get status badge color
 export function getEmployeeStatusColor(status: UserStatusEnum): string {
@@ -107,4 +108,12 @@ export function calculateNetSalary(
   deductions: number
 ): number {
   return baseSalary + bonus - deductions;
+}
+
+export function formatTimestamp(date?: Date) {
+  if (!date) {
+    return '';
+  }
+
+  return format(date, 'dd MMM h:mm a');
 }

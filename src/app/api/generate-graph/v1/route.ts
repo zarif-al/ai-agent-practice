@@ -7,22 +7,11 @@ import {
   APICallError,
   TypeValidationError,
 } from 'ai';
-import { saveChat } from '@/lib/chat-store';
 import { z } from 'zod';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import tablesJSON from '@/db/schema/tables.json';
-import { queryDatabaseTool } from './tools';
-
-const requestBodySchema = z.object({
-  messages: z.array(
-    z.object({
-      id: z.string(),
-      content: z.string(),
-      role: z.enum(['user', 'assistant', 'system', 'data']),
-    })
-  ),
-  id: z.string(),
-});
+import { ollamaModel } from '@/lib/model';
+import { saveChat } from '@/utils/chat-store';
+import { generateGraphObjectsTool } from './tool';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -37,34 +26,25 @@ export async function POST(req: Request) {
   const { messages, id } = data;
 
   try {
-    const lmstudio = createOpenAICompatible({
-      name: 'lmstudio',
-      baseURL: 'http://10.0.0.100:1234/v1',
-    });
-
     // Save user message to the database
     await saveChat({ id, messages });
 
-    /**
-     * Notes:
-     * - It seems `generateObject` does not support tool calling, as this function calls tools internally.
-     * 	 I am proceeding with `generateText` for now.
-     */
     const result = await streamText({
-      model: lmstudio('qwen2.5-7b-instruct'),
+      model: ollamaModel,
       system:
-        `Here is the database schema of the system you are working with:
-         Schema: ${JSON.stringify(tablesJSON, null, 2)}
-        ` +
-        `Your job is to help answer any and all queries regarding this database.` +
-        `If the user wants to query data from this database you will first validate the users request against the schema to see if it is a valid request.` +
-        `Do not proceed until the user provides a clear query with all necessary parameters.` +
-        `Use the tools provided to address the users queries.` +
-        `Do not make up any information or makeup any queries to the database.`,
+        `Here is the database schema of the system you are working with :
+				 Schema: ${JSON.stringify(tablesJSON, null, 2)}
+				` +
+        `Your job is to help answer any and all queries regarding this database. ` +
+        `If the user wants to query data from this database you will first validate the users request against the schema to see if it is a valid request. ` +
+        `Do not proceed until the user provides a clear query with all necessary parameters. ` +
+        `Use the tools provided to address the users queries. ` +
+        `Do not make up any information or makeup any queries to the database. ` +
+        `If any tool returns an error then try again.`,
       messages,
       maxSteps: 5,
       tools: {
-        queryDatabase: queryDatabaseTool,
+        generateGraphObjects: generateGraphObjectsTool,
       },
       onStepFinish({ toolCalls, finishReason, stepType }) {
         console.log('Step finished:', {
@@ -112,3 +92,17 @@ export async function POST(req: Request) {
     });
   }
 }
+
+/**
+ * A zod schema to validate the request body.
+ */
+const requestBodySchema = z.object({
+  messages: z.array(
+    z.object({
+      id: z.string(),
+      content: z.string(),
+      role: z.enum(['user', 'assistant', 'system', 'data']),
+    })
+  ),
+  id: z.string(),
+});

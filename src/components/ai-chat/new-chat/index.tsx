@@ -7,9 +7,9 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createChat } from '@/lib/chat-store';
 import type { IChat } from '../interface';
 import { useQueryClient } from '@tanstack/react-query';
+import { createChat } from '@/utils/chat-store';
 
 interface NewChatModalProps {
   isOpen: boolean;

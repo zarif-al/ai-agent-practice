@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronRight, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { TableSnippetEmpty } from './empty';
-import { formatCurrency } from '@/lib/helpers';
+import { formatCurrency } from '@/utils/helpers';
 import { db } from '@/db';
 import { payrollTable } from '@/db/schema/payroll';
 import { employeesTable } from '@/db/schema/employees';

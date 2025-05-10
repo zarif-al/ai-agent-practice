@@ -203,7 +203,11 @@
           "values": ["user", "assistant", "system", "data"],
           "notNull": true
         },
-        "content": { "type": "varchar", "length": 10000, "notNull": true }
+        "content": { "type": "varchar", "length": 10000, "notNull": true },
+        "parts": {
+          "type": "jsonb",
+          "customType": "Message['parts']"
+        }
       }
     }
   ]
