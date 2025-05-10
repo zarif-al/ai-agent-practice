@@ -115,5 +115,5 @@ export function formatTimestamp(date?: Date) {
     return '';
   }
 
-  return format(date, 'h:mm a');
+  return format(date, 'dd MMM h:mm a');
 }
