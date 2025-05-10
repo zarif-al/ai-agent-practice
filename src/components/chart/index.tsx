@@ -1,7 +1,7 @@
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../ui/chart';
 import type { z } from 'zod';
-import type { graphObjectSchema } from '@/app/api/generate-graph-v1/schemas';
+import type { graphObjectSchema } from '@/app/api/generate-graph/v1/schemas';
 
 type IChartProps = z.infer<typeof graphObjectSchema>;
 

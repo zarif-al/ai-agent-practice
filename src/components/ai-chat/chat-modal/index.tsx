@@ -36,7 +36,7 @@ export function ChatModal({ isOpen, onClose, selectedChatId }: ChatModalProps) {
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     id: data?.id || '',
     initialMessages: data?.messages || [],
-    api: '/api/generate-graph-v1',
+    api: '/api/generate-graph/v1',
     sendExtraMessageFields: true,
     onResponse: () => {
       scrollToBottom();
