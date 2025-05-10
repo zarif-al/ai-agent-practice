@@ -25,7 +25,7 @@ export function MessagePartsRender({ parts }: IMessagePartsRender) {
             if (toolCall.state !== 'result') {
               return (
                 <div key={toolCall.toolCallId} className="mb-2">
-                  <Skeleton className="h-11 w-full bg-gray-300" />
+                  <Skeleton className="h-[300px] w-[500px] bg-gray-300" />
                 </div>
               );
             }
