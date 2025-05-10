@@ -59,7 +59,7 @@ export function URLInputForm({
     const newUrlItem: UrlItem = {
       id: `url-${Date.now()}`,
       url: trimmedUrl,
-      status: 'not started',
+      status: 'pending',
       addedAt: new Date(),
     };
 
