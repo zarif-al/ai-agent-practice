@@ -5,7 +5,8 @@ import { ChatModalError } from './error';
 import { cn } from '@/utils/shadcn';
 import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { generateGraphObjectsToolResult } from '@/app/api/generate-graph-v1/schemas';
+import { MessagePartsRender } from './message-parts-render';
+import { formatTimestamp } from '@/utils/helpers';
 
 interface IProps {
   refetch: (options?: RefetchOptions | undefined) => Promise<unknown>;
@@ -65,60 +66,29 @@ export function MessageArea({ isError, isLoading, messages, refetch }: IProps) {
         </div>
 
         {/* Message bubble with content */}
-        <div
-          className={cn(
-            'rounded-lg px-4 py-2 prose',
-            message.role === 'user' && 'bg-primary text-primary-foreground',
-            message.role !== 'user' && 'bg-muted text-foreground'
-          )}
-        >
-          {/* Render Tool Calls */}
-          {message.parts.map((part) => {
-            if (part.type === 'tool-invocation') {
-              const toolCall = part.toolInvocation;
+        <div className="flex flex-col">
+          <div
+            className={cn(
+              'rounded-lg px-4 py-2 prose',
+              message.role === 'user' && 'bg-primary text-primary-foreground',
+              message.role !== 'user' && 'bg-muted text-foreground'
+            )}
+          >
+            {/* Render Tool Calls */}
+            <MessagePartsRender parts={message.parts} />
 
-              if (
-                toolCall.state === 'result' &&
-                toolCall.toolName == 'generateGraphObjects'
-              ) {
-                const toolCallResult = generateGraphObjectsToolResult.safeParse(
-                  toolCall.result.data
-                );
+            {/* Message content */}
+            <ReactMarkdown>{message.content}</ReactMarkdown>
 
-                if (toolCallResult.success) {
-                  return (
-                    <div key={toolCall.toolCallId} className="mb-2">
-                      <p>
-                        <strong>Tool Call:</strong> {toolCall.toolName}
-                      </p>
-
-                      <pre>{JSON.stringify(toolCallResult.data, null, 2)}</pre>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div key={toolCall.toolCallId} className="mb-2">
-                      <p>
-                        <strong>Error:</strong> Failed to parse generated object
-                      </p>
-                    </div>
-                  );
-                }
-              } else {
-                return (
-                  <div key={toolCall.toolCallId} className="mb-2">
-                    <p>
-                      <strong>Tool Call:</strong> {toolCall.toolName}
-                    </p>
-                    <p>Loading...</p>
-                  </div>
-                );
-              }
-            }
-          })}
-
-          {/* Message content */}
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+            {/* Timestamp */}
+            <span
+              className={`text-xs text-muted-foreground mt-1 ${
+                message.role === 'user' ? 'text-right' : 'text-left'
+              }`}
+            >
+              {formatTimestamp(message.createdAt)}
+            </span>
+          </div>
         </div>
       </div>
     </div>
