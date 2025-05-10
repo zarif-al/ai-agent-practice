@@ -71,21 +71,18 @@ export function ScrapingTabs({
   const handleExportResults = () => {
     const results = urls
       .filter((url) => url.status === 'completed' && url.result)
-      .map((url) => ({
-        url: url.url,
-        processedAt: url.processedAt,
-        category: selectedPageType,
-        data: url.result,
-      }));
+      .map((url) => url.result);
 
-    if (results.length === 0) return;
+    if (results.length === 0) {
+      return;
+    }
 
     const blob = new Blob([JSON.stringify(results, null, 2)], {
       type: 'application/json',
     });
-    const url = URL.createObjectURL(blob);
 
     // Blob URL Download - a better way would be `showSaveFilePicker`
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `hr-scraping-results-${selectedPageType}-${
