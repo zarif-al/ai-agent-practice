@@ -59,14 +59,7 @@ export function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                isActive={
-                  item.href === '/'
-                    ? pathname === '/'
-                    : pathname.startsWith(item.href)
-                }
-              >
+              <SidebarMenuButton asChild isActive={pathname === item.href}>
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.title}</span>
