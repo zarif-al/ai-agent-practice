@@ -13,7 +13,7 @@ import { db } from '@/db';
 import { sql } from 'drizzle-orm';
 import { ollamaModel } from '@/lib/model';
 import { z } from 'zod';
-import { log } from '@/utils/logger';
+import { log } from '@/utils/global/logger';
 import { graphObjectSchema } from './schemas';
 
 /**

@@ -1,0 +1,12 @@
+import type {
+  IScrapingState,
+  ScrapingAction,
+} from '@/app/ai-scraping/reducer/interface';
+import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
+import type { Dispatch } from 'react';
+
+export interface IScrapingTabsProps {
+  urlCounts: IURLCounts;
+  state: IScrapingState;
+  dispatch: Dispatch<ScrapingAction>;
+}
