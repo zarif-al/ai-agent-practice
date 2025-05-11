@@ -8,9 +8,21 @@ import {
   TypeValidationError,
 } from 'ai';
 import { z } from 'zod';
-import { newsSchema, peopleSchema } from '../schema';
 import { log } from '@/utils/global/logger';
+import { newsSchema, peopleSchema } from '../schema';
 
+/**
+ * Locally run Ollama models can't access web URLs.
+ * I attempted to download the html file and pass it to the model as a buffer.
+ * However, it seems the models run on Ollama can't process buffers (according to ChatGPT).
+ *
+ * I tried to pass the text version of the HTML file to the model, but it didn't work. I think the content is
+ * too long for the model to process.
+ *
+ * I sliced the HTML content and passed it. Then I started seeing some results but it was incomplete/incorrect.
+ *
+ * So far google's model has performed far better.
+ */
 export async function POST(req: Request) {
   const body = await req.json();
 
@@ -24,28 +36,58 @@ export async function POST(req: Request) {
 
   const { url, pageType } = data;
 
+  /**
+   * Locally run Ollama can't access web URLs. So I going to download the HTML file
+   * and pass it to the model.
+   */
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'text/html',
+    },
+  });
+
+  const htmlText = await response.text();
+
+  const title = htmlText.match(/<title>(.*?)<\/title>/i)?.[1] || 'N/A';
+  const meta =
+    htmlText.match(
+      /<meta name=["']description["'] content=["'](.*?)["']/i
+    )?.[1] || 'N/A';
+
   try {
     switch (pageType) {
       case 'person': {
         const { object, usage, warnings } = await generateObject({
-          model: model('google'),
+          model: model('ollama'),
           schemaName: 'Person',
           schema: peopleSchema,
+          schemaDescription: 'The schema of a person',
+          maxRetries: 5,
           system:
-            `You will receive a web page URL of a university person` +
+            `You will receive a text version of a web page of a university person` +
             `Please extract the data from this web page.`,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'file',
-                  data: new URL(url),
-                  mimeType: 'text/html',
-                },
-              ],
-            },
-          ],
+          prompt:
+            `Here is the HTML content of a web page. Please extract the data from this web page. ` +
+            `HTML Summary:
+              - Title: ${title}
+              - Meta Description: ${meta}
+            ` +
+            `Context: ${htmlText.slice(0, 10000)}` +
+            `Extract data according the provided schema. `,
+          // messages: [
+          //   {
+          //     role: 'user',
+          //     content: [
+          //       {
+          //         type: 'file',
+          //         data: buffer,
+          //         mimeType: 'text/html',
+          //       },
+          //     ],
+          //   },
+          // ],
         });
 
         log.info('Usage: ', {
@@ -62,7 +104,7 @@ export async function POST(req: Request) {
       }
       case 'news': {
         const { object, usage, warnings } = await generateObject({
-          model: model('google'),
+          model: model('ollama'),
           schemaName: 'News',
           schema: newsSchema,
           system:

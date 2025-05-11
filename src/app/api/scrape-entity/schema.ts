@@ -1,8 +1,12 @@
 import { z } from 'zod';
 
 export const peopleSchema = z.object({
-  preNominal: z.string().describe("The prefix of the person's name"),
-  postNominal: z.string().describe("The suffix of the person's name"),
+  preNominal: z
+    .string()
+    .describe("The person's pre-nominal title. Default to empty string"),
+  postNominal: z
+    .string()
+    .describe("The person's post-nominal title. Default to empty string"),
   firstName: z.string().describe("The person's first name"),
   lastName: z.string().describe("The person's last name"),
   slug: z.string().describe("The person's slug"),
@@ -12,21 +16,23 @@ export const peopleSchema = z.object({
     keywords: z.array(z.string()).describe("The person's SEO keywords"),
   }),
   position: z.string().describe("The person's position"),
-  contactLinks: z.array(
-    z.object({
-      icon: z.enum([
-        'facebook',
-        'x',
-        'youtube',
-        'linkedin',
-        'email',
-        'phone',
-        'web',
-      ]),
-      link: z.string().url(),
-    })
-  ),
-  image: z.string().url().describe("The URL of the person's image"),
+  contactLinks: z
+    .array(
+      z.object({
+        icon: z.enum([
+          'facebook',
+          'x',
+          'youtube',
+          'linkedin',
+          'email',
+          'phone',
+          'web',
+        ]),
+        link: z.string().describe("Link to the person's contact page"),
+      })
+    )
+    .optional(),
+  image: z.string().describe("The URL of the person's image"),
   content: z.string().describe('The HTML content of the news'),
 });
 
