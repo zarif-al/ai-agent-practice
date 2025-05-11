@@ -10,15 +10,9 @@ import type { IWarningDialogProps } from './interface';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/global/ui/button';
 
-/* Category Change Warning Dialog */
-export function WarningDialog({
-  cancelPageTypeChange,
-  confirmPageTypeChange,
-  setPageTypeWarning,
-  showPageTypeWarning,
-}: IWarningDialogProps) {
+export function WarningDialog({ dispatch, state }: IWarningDialogProps) {
   return (
-    <Dialog open={showPageTypeWarning} onOpenChange={setPageTypeWarning}>
+    <Dialog open={state.showPageTypeWarning}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -31,10 +25,20 @@ export function WarningDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={cancelPageTypeChange}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              dispatch({ type: 'HANDLE_PAGE_TYPE_WARNING_CANCEL' });
+            }}
+          >
             Cancel
           </Button>
-          <Button variant="default" onClick={confirmPageTypeChange}>
+          <Button
+            variant="default"
+            onClick={() => {
+              dispatch({ type: 'HANDLE_PAGE_TYPE_WARNING_CONFIRM' });
+            }}
+          >
             Change Category
           </Button>
         </DialogFooter>

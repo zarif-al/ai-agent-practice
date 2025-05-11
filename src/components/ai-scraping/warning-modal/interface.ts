@@ -1,6 +1,10 @@
+import type {
+  IScrapingState,
+  ScrapingAction,
+} from '@/app/ai-scraping/reducer/interface';
+import type { Dispatch } from 'react';
+
 export interface IWarningDialogProps {
-  showPageTypeWarning: boolean;
-  setPageTypeWarning: (show: boolean) => void;
-  cancelPageTypeChange: () => void;
-  confirmPageTypeChange: () => void;
+  state: IScrapingState;
+  dispatch: Dispatch<ScrapingAction>;
 }
