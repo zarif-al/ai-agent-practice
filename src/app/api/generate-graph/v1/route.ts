@@ -9,7 +9,7 @@ import {
 } from 'ai';
 import { z } from 'zod';
 import tablesJSON from '@/db/schema/tables.json';
-import { ollamaModel } from '@/lib/model';
+import { model } from '@/lib/model';
 import { saveChat } from '@/utils/ai-dashboard/chat-store';
 import { generateGraphObjectsTool } from './tool';
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     await saveChat({ id, messages });
 
     const result = await streamText({
-      model: ollamaModel,
+      model: model('ollama'),
       system:
         `Here is the database schema of the system you are working with :
 				 Schema: ${JSON.stringify(tablesJSON, null, 2)}

@@ -11,7 +11,7 @@ import {
 } from 'ai';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
-import { ollamaModel } from '@/lib/model';
+import { model } from '@/lib/model';
 import { z } from 'zod';
 import { log } from '@/utils/global/logger';
 import { graphObjectSchema } from './schemas';
@@ -50,7 +50,7 @@ export const generateGraphObjectsTool = tool({
       });
 
       const { object } = await generateObject({
-        model: ollamaModel,
+        model: model('ollama'),
         schemaName: 'reCharts_graphing_data',
         schemaDescription:
           'The graph type and the data to be used to render the graph. The acceptable values for the graph type are "bar", "line", "pie".',
