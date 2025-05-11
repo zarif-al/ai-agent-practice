@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useReducer } from 'react';
 import { Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/global/ui/button';
 import {
@@ -11,77 +11,52 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/global/ui/card';
-import {
-  type IGeneratedObjectResult,
-  type IURLCounts,
-  type PageType,
-  type UrlItem,
-} from './interface';
 import { WarningDialog } from '@/components/ai-scraping/warning-modal';
 import { ScrapingCategorySelection } from '@/components/ai-scraping/category-selection';
 import { URLInputForm } from '@/components/ai-scraping/url-input-form';
 import { ErrorAlert } from '@/components/ai-scraping/error-alert';
 import { ScrapingTabs } from '@/components/ai-scraping/tabs';
+import { AppHeader } from '@/components/global/app-header';
+import type {
+  IGeneratedObjectResult,
+  IURLCounts,
+  PageType,
+} from '@/utils/ai-scraping/common-interfaces';
+import { initialScrapingState, scrapingReducer } from './reducer';
 
 export default function ScrapingPage() {
-  const [urls, setUrls] = useState<UrlItem[]>([]);
-  const [inputUrl, setInputUrl] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState('urls');
-
-  // Page type selection state
-  const [selectedPageType, setSelectedCategory] = useState<PageType>('person');
-  const [showPageTypeWarning, setShowPageTypeWarning] = useState(false);
-  const [pendingPageType, setPendingPageType] = useState<PageType | null>(null);
-
-  // Focus input on page load
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
-  // Handle category change
-  const handlePageTypeChange = (pageType: PageType) => {
-    // If there are no URLs or results, just change the category
-    if (urls.length === 0) {
-      setSelectedCategory(pageType);
-      return;
-    }
-
-    // Otherwise, show warning and store the pending category
-    setPendingPageType(pageType);
-    setShowPageTypeWarning(true);
-  };
+  const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
+  const { urls, isProcessing, selectedPageType } = state;
 
   // Process all URLs with mocked responses
   const handleProcessUrls = async () => {
     if (urls.length === 0) {
-      setError('Please add at least one URL to process');
+      dispatch({ type: 'SET_API_ERROR', payload: 'No URLs to process' });
       return;
     }
 
     // Reset any previous errors
-    setApiError(null);
-    setIsProcessing(true);
+    dispatch({ type: 'SET_ERROR', payload: null });
+    dispatch({ type: 'SET_API_ERROR', payload: null });
+
+    // Set processing state
+    dispatch({ type: 'SET_IS_PROCESSING', payload: true });
 
     // Get only pending URLs
     const pendingUrls = urls.filter((url) => url.status === 'pending');
 
     if (pendingUrls.length === 0) {
-      setIsProcessing(false);
+      dispatch({ type: 'SET_IS_PROCESSING', payload: false });
       return;
     }
 
     // Update all pending URLs to processing
-    setUrls((prev) =>
-      prev.map((item) =>
+    dispatch({
+      type: 'SET_URLS',
+      payload: urls.map((item) =>
         item.status === 'pending' ? { ...item, status: 'processing' } : item
-      )
-    );
+      ),
+    });
 
     try {
       // Simulate API processing delay
@@ -117,8 +92,9 @@ export default function ScrapingPage() {
       });
 
       // Update the URLs with the results
-      setUrls((prev) =>
-        prev.map((urlItem) => {
+      dispatch({
+        type: 'SET_URLS',
+        payload: urls.map((urlItem) => {
           // Find this URL in the mock results
           const result = mockResults.find((r) => r.url === urlItem.url);
 
@@ -132,22 +108,22 @@ export default function ScrapingPage() {
             };
           }
           return urlItem;
-        })
-      );
+        }),
+      });
 
       // If we have results, switch to the results tab
       if (mockResults.some((r) => !r.error)) {
-        setActiveTab('results');
+        dispatch({ type: 'SET_ACTIVE_TAB', payload: 'results' });
       }
     } catch (err) {
       console.error('Error processing URLs:', err);
-      setApiError(
-        err instanceof Error ? err.message : 'Failed to process URLs'
-      );
+
+      dispatch({ type: 'SET_API_ERROR', payload: 'Failed to process URLs' });
 
       // Mark all processing URLs as error
-      setUrls((prev) =>
-        prev.map((item) =>
+      dispatch({
+        type: 'SET_URLS',
+        payload: urls.map((item) =>
           item.status === 'processing'
             ? {
                 ...item,
@@ -156,18 +132,12 @@ export default function ScrapingPage() {
                 error: 'Processing failed',
               }
             : item
-        )
-      );
+        ),
+      });
     } finally {
-      setIsProcessing(false);
+      // Reset processing state
+      dispatch({ type: 'SET_IS_PROCESSING', payload: false });
     }
-  };
-
-  // Clear all URLs
-  const handleClearUrls = () => {
-    if (isProcessing) return;
-    setUrls([]);
-    setActiveTab('urls');
   };
 
   // Count URLs by status
@@ -180,105 +150,72 @@ export default function ScrapingPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <Card className="w-full mx-auto">
-        <CardHeader>
-          <CardTitle>HR Data Scraping Tool</CardTitle>
-          <CardDescription>
-            Add URLs to extract HR data from websites, job boards, and company
-            pages
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen flex flex-col bg-background">
+      <AppHeader title="AI Scraping" disableSidebarToggle />
 
-        <CardContent>
-          {/* Category Selection */}
-          <ScrapingCategorySelection
-            handlePageTypeChange={handlePageTypeChange}
-            isProcessing={isProcessing}
-            selectedPageType={selectedPageType}
-          />
+      <div className="container mx-auto py-6 px-4">
+        <Card className="w-full mx-auto">
+          <CardHeader>
+            <CardTitle>HR Data Scraping Tool</CardTitle>
+            <CardDescription>
+              Add URLs to extract HR data from websites, job boards, and company
+              pages
+            </CardDescription>
+          </CardHeader>
 
-          {/* URL Input Form */}
-          <URLInputForm
-            error={error}
-            inputRef={inputRef}
-            inputUrl={inputUrl}
-            isProcessing={isProcessing}
-            setError={setError}
-            setInputUrl={setInputUrl}
-            selectedPageType={selectedPageType}
-            setUrls={setUrls}
-            urls={urls}
-          />
+          <CardContent>
+            {/* Category Selection */}
+            <ScrapingCategorySelection dispatch={dispatch} state={state} />
 
-          {/* API Error Alert */}
-          <ErrorAlert apiError={apiError} setApiError={setApiError} />
+            {/* URL Input Form */}
+            <URLInputForm dispatch={dispatch} state={state} />
 
-          {/* Tabs for URLs and Results */}
-          <ScrapingTabs
-            activeTab={activeTab}
-            isProcessing={isProcessing}
-            selectedPageType={selectedPageType}
-            setActiveTab={setActiveTab}
-            urlCounts={urlCounts}
-            urls={urls}
-            setUrls={setUrls}
-          />
-        </CardContent>
+            {/* API Error Alert */}
+            <ErrorAlert dispatch={dispatch} state={state} />
 
-        <CardFooter className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={handleClearUrls}
-            disabled={urls.length === 0 || isProcessing}
-          >
-            Clear All
-          </Button>
+            {/* Tabs for URLs and Results */}
+            <ScrapingTabs
+              urlCounts={urlCounts}
+              dispatch={dispatch}
+              state={state}
+            />
+          </CardContent>
 
-          <Button
-            onClick={handleProcessUrls}
-            disabled={
-              urls.length === 0 || isProcessing || urlCounts.pending === 0
-            }
-            className="gap-2"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <Check className="size-4" />
-                Process URLs
-              </>
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              onClick={() => {
+                dispatch({ type: 'HANDLE_CLEAR_URLS' });
+              }}
+              disabled={urls.length === 0 || isProcessing}
+            >
+              Clear All
+            </Button>
 
-      <WarningDialog
-        cancelPageTypeChange={() => {
-          setShowPageTypeWarning(false);
-          setPendingPageType(null);
-        }}
-        confirmPageTypeChange={() => {
-          if (pendingPageType) {
-            setSelectedCategory(pendingPageType);
+            <Button
+              onClick={handleProcessUrls}
+              disabled={
+                urls.length === 0 || isProcessing || urlCounts.pending === 0
+              }
+              className="gap-2"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Check className="size-4" />
+                  Process URLs
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
 
-            // Reset URLs and results
-            setUrls([]);
-            setActiveTab('urls');
-            setError(null);
-            setApiError(null);
-          }
-
-          setShowPageTypeWarning(false);
-          setPendingPageType(null);
-        }}
-        setPageTypeWarning={setShowPageTypeWarning}
-        showPageTypeWarning={showPageTypeWarning}
-      />
+        <WarningDialog dispatch={dispatch} state={state} />
+      </div>
     </div>
   );
 }
