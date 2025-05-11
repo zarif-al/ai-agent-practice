@@ -1,7 +1,43 @@
 import type { IScrapingState, ScrapingAction } from './interface';
 
 export const initialScrapingState: IScrapingState = {
-  urls: [],
+  urls: [
+    {
+      id: 'url-1746956645786',
+      url: 'https://www.merton.ox.ac.uk/people/professor-rhiannon-ash',
+      status: 'pending',
+      addedAt: new Date(),
+      pageType: 'person',
+    },
+    {
+      id: 'url-1746956649697',
+      url: 'https://www.merton.ox.ac.uk/people/professor-jennifer-payne',
+      status: 'pending',
+      addedAt: new Date(),
+      pageType: 'person',
+    },
+    {
+      id: 'url-1746956652952',
+      url: 'https://www.merton.ox.ac.uk/people/professor-judith-armitage',
+      status: 'pending',
+      addedAt: new Date(),
+      pageType: 'person',
+    },
+    {
+      id: 'url-1746956657092',
+      url: 'https://www.merton.ox.ac.uk/people/nicholas-w-allard',
+      status: 'pending',
+      addedAt: new Date(),
+      pageType: 'person',
+    },
+    {
+      id: 'url-1746956660268',
+      url: 'https://www.merton.ox.ac.uk/people/honourable-dame-kelyn-bacon',
+      status: 'pending',
+      addedAt: new Date(),
+      pageType: 'person',
+    },
+  ],
   isProcessing: false,
   error: null,
   apiError: null,
@@ -17,7 +53,13 @@ export const scrapingReducer = (
 ): IScrapingState => {
   switch (action.type) {
     case 'SET_URLS':
-      return { ...state, urls: action.payload };
+      return {
+        ...state,
+        urls:
+          typeof action.payload === 'function'
+            ? action.payload(state.urls) // Call the function with the current state
+            : action.payload, // Use the payload directly if it's not a function
+      };
     case 'SET_IS_PROCESSING':
       return { ...state, isProcessing: action.payload };
     case 'SET_ERROR':

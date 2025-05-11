@@ -11,8 +11,12 @@ export interface IScrapingState {
   pendingPageType: PageType | null;
 }
 
+type SetUrlsPayload =
+  | UrlItem[] // Direct update: an array of URL items
+  | ((prevUrls: UrlItem[]) => UrlItem[]); // Functional update: a function that returns the updated array
+
 export type ScrapingAction =
-  | { type: 'SET_URLS'; payload: UrlItem[] }
+  | { type: 'SET_URLS'; payload: SetUrlsPayload }
   | { type: 'SET_IS_PROCESSING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_API_ERROR'; payload: string | null }
