@@ -40,142 +40,130 @@ export default function ScrapingPage() {
     dispatch({ type: 'SET_IS_PROCESSING', payload: true });
 
     // Get only pending URLs
-    const pendingUrls = urls.filter((url) => url.status === 'pending');
+    const incompleteUrls = urls.filter((url) => url.status !== 'completed');
 
-    if (pendingUrls.length === 0) {
+    if (incompleteUrls.length === 0) {
       dispatch({ type: 'SET_IS_PROCESSING', payload: false });
+
       return;
     }
 
-    // Loop over all URLs and process them
-    for (const urlItem of pendingUrls) {
+    // Process all URLS in parallel
+    const promises = incompleteUrls.map(async (urlItem) => {
       // Set the URL to processing
       dispatch({
         type: 'SET_URLS',
-        payload: urls.map((item) =>
-          item.url === urlItem.url ? { ...item, status: 'processing' } : item
-        ),
-      });
-
-      // Call API to generate object
-      const result = await fetch('/api/scrape-entity/v1', {
-        method: 'POST',
-        body: JSON.stringify({
-          url: urlItem.url,
-          pageType: selectedPageType,
-        }),
-      });
-
-      // Check if the response is ok
-      if (!result.ok) {
-        // Set error on the URL
-        dispatch({
-          type: 'SET_URLS',
-          payload: urls.map((item) =>
-            item.url === urlItem.url
-              ? {
-                  ...item,
-                  status: 'error',
-                  error: 'Failed to process URL',
-                }
-              : item
+        payload: (prevUrls) =>
+          prevUrls.map((item) =>
+            item.url === urlItem.url ? { ...item, status: 'processing' } : item
           ),
+      });
+
+      try {
+        // Call API to generate object
+        const result = await fetch('/api/scrape-entity/v1', {
+          method: 'POST',
+          body: JSON.stringify({
+            url: urlItem.url,
+            pageType: selectedPageType,
+          }),
         });
 
-        continue;
-      }
+        if (!result.ok) {
+          throw new Error('Failed to process URL');
+        }
 
-      // Parse the response
-      const resultJSON = await result.json();
+        // Parse the response
+        const resultJSON = await result.json();
 
-      // Process result based on Page Type
-      switch (urlItem.pageType) {
-        case 'news': {
-          const { success, data } = newsSchema.safeParse(resultJSON);
+        // Process result based on Page Type
+        switch (urlItem.pageType) {
+          case 'news': {
+            const { success, data } = newsSchema.safeParse(resultJSON);
 
-          if (!success) {
+            if (!success) {
+              throw new Error('Failed to parse news data');
+            }
+
             dispatch({
               type: 'SET_URLS',
-              payload: urls.map((item) =>
-                item.url === urlItem.url
-                  ? {
-                      ...item,
-                      status: 'error',
-                      error: 'Failed to parse news data',
-                    }
-                  : item
-              ),
+              payload: (prevUrls) =>
+                prevUrls.map((item) =>
+                  item.url === urlItem.url
+                    ? {
+                        ...item,
+                        status: 'completed',
+                        processedAt: new Date(),
+                        result: {
+                          title: data.name,
+                          category: 'news',
+                          url: item.url,
+                          scrapedAt: new Date().toISOString(),
+                          domain: new URL(item.url).hostname,
+                          data,
+                        },
+                      }
+                    : item
+                ),
             });
 
-            continue;
+            break;
           }
+          case 'person': {
+            const { success, data } = peopleSchema.safeParse(resultJSON);
 
-          // Update the URL with the parsed data
-          dispatch({
-            type: 'SET_URLS',
-            payload: urls.map((item) =>
+            if (!success) {
+              throw new Error('Failed to parse person data');
+            }
+
+            dispatch({
+              type: 'SET_URLS',
+              payload: (prevUrls) =>
+                prevUrls.map((item) =>
+                  item.url === urlItem.url
+                    ? {
+                        ...item,
+                        status: 'completed',
+                        processedAt: new Date(),
+                        result: {
+                          title: `${data.preNominal} ${data.firstName} ${data.lastName} ${data.postNominal}`,
+                          category: 'person',
+                          url: item.url,
+                          scrapedAt: new Date().toISOString(),
+                          domain: new URL(item.url).hostname,
+                          data,
+                        },
+                      }
+                    : item
+                ),
+            });
+
+            break;
+          }
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+
+        // Handle errors
+        dispatch({
+          type: 'SET_URLS',
+          payload: (prevUrls) =>
+            prevUrls.map((item) =>
               item.url === urlItem.url
                 ? {
                     ...item,
-                    status: 'completed',
-                    processedAt: new Date(),
-                    result: {
-                      title: data.name,
-                      category: 'news',
-                      url: item.url,
-                      scrapedAt: new Date().toISOString(),
-                      domain: new URL(item.url).hostname,
-                      data,
-                    },
+                    status: 'error',
+                    error: errorMessage,
                   }
                 : item
             ),
-          });
-        }
-        case 'person': {
-          const { success, data } = peopleSchema.safeParse(resultJSON);
-
-          if (!success) {
-            dispatch({
-              type: 'SET_URLS',
-              payload: urls.map((item) =>
-                item.url === urlItem.url
-                  ? {
-                      ...item,
-                      status: 'error',
-                      error: 'Failed to parse person data',
-                    }
-                  : item
-              ),
-            });
-
-            continue;
-          }
-
-          // Update the URL with the parsed data
-          dispatch({
-            type: 'SET_URLS',
-            payload: urls.map((item) =>
-              item.url === urlItem.url
-                ? {
-                    ...item,
-                    status: 'completed',
-                    processedAt: new Date(),
-                    result: {
-                      title: `${data.preNominal} ${data.firstName} ${data.lastName} ${data.postNominal}`,
-                      category: 'person',
-                      url: item.url,
-                      scrapedAt: new Date().toISOString(),
-                      domain: new URL(item.url).hostname,
-                      data,
-                    },
-                  }
-                : item
-            ),
-          });
-        }
+        });
       }
-    }
+    });
+
+    // Wait for all promises to resolve
+    await Promise.all(promises);
 
     // Reset processing state
     dispatch({ type: 'SET_IS_PROCESSING', payload: false });
