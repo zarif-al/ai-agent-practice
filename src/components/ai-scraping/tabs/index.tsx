@@ -274,7 +274,7 @@ export function ScrapingTabs({
                             Scraped {selectedPageTypeDisplayName} Data
                           </h4>
                           <pre className="text-sm overflow-auto p-2 bg-background rounded border max-h-[300px]">
-                            {JSON.stringify(item.result, null, 2)}
+                            {JSON.stringify(item.result?.data, null, 2)}
                           </pre>
                         </div>
                       </AccordionContent>

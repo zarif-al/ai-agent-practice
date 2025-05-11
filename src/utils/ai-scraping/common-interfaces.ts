@@ -1,4 +1,4 @@
-import type { News, Person } from '@/app/api/scrape-entity/v1/schema';
+import type { News, Person } from '@/app/api/scrape-entity/schema';
 
 // URL status types
 export type UrlStatus = 'pending' | 'processing' | 'completed' | 'error';
@@ -12,6 +12,7 @@ export interface UrlItem {
   processedAt?: Date;
   error?: string;
   result?: IGeneratedObjectResult;
+  pageType: PageType;
 }
 
 // AI Scrape results interface
@@ -21,7 +22,7 @@ export interface IGeneratedObjectResult {
   scrapedAt: string;
   domain: string;
   category: PageType;
-  result: Person | News;
+  data: Person | News;
 }
 
 // Page types
