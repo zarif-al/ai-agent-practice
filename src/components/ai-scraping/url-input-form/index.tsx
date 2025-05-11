@@ -1,37 +1,28 @@
 import {
   PAGE_TYPE_DISPLAY_NAMES,
-  type PageType,
   type UrlItem,
-} from '@/app/ai-scraping/interface';
+} from '@/utils/ai-scraping/common-interfaces';
 import { Button } from '@/components/global/ui/button';
 import { Input } from '@/components/global/ui/input';
 import { Plus } from 'lucide-react';
 import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { isValidUrl } from '@/utils/ai-scraping/helpers';
+import type { IURLInputFormProps } from './interface';
 
-interface IURLInputFormProps {
-  inputUrl: string;
-  setInputUrl: (url: string) => void;
-  isProcessing: boolean;
-  error: string | null;
-  setError: (error: string | null) => void;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  selectedPageType: PageType;
-  urls: UrlItem[];
-  setUrls: React.Dispatch<React.SetStateAction<UrlItem[]>>;
-}
+export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
+  const [inputUrl, setInputUrl] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
-export function URLInputForm({
-  error,
-  inputRef,
-  inputUrl,
-  isProcessing,
-  setError,
-  setInputUrl,
-  selectedPageType,
-  setUrls,
-  urls,
-}: IURLInputFormProps) {
+  // Focus input on page load
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   const handleAddUrl = () => {
+    // TODO: Trim the trailing slash
     // Trim the URL and ensure it has a protocol
     let trimmedUrl = inputUrl.trim();
 
@@ -43,15 +34,25 @@ export function URLInputForm({
     }
 
     if (!isValidUrl(trimmedUrl)) {
-      setError('Please enter a valid URL');
+      dispatch({
+        type: 'SET_ERROR',
+        payload: 'Please enter a valid URL',
+      });
+
       return;
     }
 
     // Check if URL already exists in the list
     if (
-      urls.some((item) => item.url.toLowerCase() === trimmedUrl.toLowerCase())
+      state.urls.some(
+        (item) => item.url.toLowerCase() === trimmedUrl.toLowerCase()
+      )
     ) {
-      setError('This URL is already in the list');
+      dispatch({
+        type: 'SET_ERROR',
+        payload: 'This URL is already in the list',
+      });
+
       return;
     }
 
@@ -63,11 +64,14 @@ export function URLInputForm({
       addedAt: new Date(),
     };
 
-    setUrls((prev) => [...prev, newUrlItem]);
+    dispatch({
+      type: 'SET_URLS',
+      payload: [...state.urls, newUrlItem],
+    });
 
     setInputUrl('');
 
-    setError(null);
+    dispatch({ type: 'SET_ERROR', payload: null });
   };
 
   return (
@@ -85,27 +89,28 @@ export function URLInputForm({
             value={inputUrl}
             onChange={(e) => {
               setInputUrl(e.target.value);
-              if (error) setError(null);
+
+              // Reset Error on input change
+              dispatch({
+                type: 'SET_ERROR',
+                payload: null,
+              });
             }}
-            placeholder={`Enter website URL for ${PAGE_TYPE_DISPLAY_NAMES[selectedPageType]} data`}
+            placeholder={`Enter website URL for ${
+              PAGE_TYPE_DISPLAY_NAMES[state.selectedPageType]
+            } data`}
             className="w-full"
-            disabled={isProcessing}
+            disabled={state.isProcessing}
           />
-          {error && <p className="text-sm text-destructive mt-1">{error}</p>}
+          {state.error && (
+            <p className="text-sm text-destructive mt-1">{state.error}</p>
+          )}
         </div>
-        <Button type="submit" disabled={!inputUrl.trim() || isProcessing}>
+        <Button type="submit" disabled={!inputUrl.trim() || state.isProcessing}>
           <Plus className="size-4 mr-2" />
           Add URL
         </Button>
       </form>
     </div>
   );
-}
-
-// URL validation regex
-const URL_REGEX = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i;
-
-// Validate URL
-function isValidUrl(url: string): boolean {
-  return URL_REGEX.test(url);
 }
