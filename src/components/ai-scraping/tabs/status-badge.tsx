@@ -1,4 +1,4 @@
-import type { UrlStatus } from '@/app/ai-scraping/interface';
+import type { UrlStatus } from '@/utils/ai-scraping/common-interfaces';
 import { Badge } from '@/components/global/ui/badge';
 
 interface Props {
