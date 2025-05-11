@@ -1,4 +1,11 @@
-// utils/logger.ts
+import {
+  NoSuchToolError,
+  InvalidToolArgumentsError,
+  ToolExecutionError,
+  APICallError,
+  TypeValidationError,
+  NoObjectGeneratedError,
+} from 'ai';
 
 const COLORS = {
   reset: '\x1b[0m',
@@ -34,3 +41,21 @@ export const log = {
     );
   },
 };
+
+export function logVercelAISDKError(error: unknown) {
+  if (error instanceof NoSuchToolError) {
+    log.error('No such tool error:', { message: error.message });
+  } else if (error instanceof InvalidToolArgumentsError) {
+    log.error('Invalid tool arguments error:', { message: error.message });
+  } else if (error instanceof ToolExecutionError) {
+    log.error('Tool execution error:', { message: error.message });
+  } else if (error instanceof APICallError) {
+    log.error('API call error:', { message: error.message });
+  } else if (error instanceof TypeValidationError) {
+    log.error('Type validation error:', { message: error.message });
+  } else if (error instanceof NoObjectGeneratedError) {
+    log.error('No object generated error:', { message: error.message });
+  } else {
+    log.error('Unknown error:', { message: error });
+  }
+}
