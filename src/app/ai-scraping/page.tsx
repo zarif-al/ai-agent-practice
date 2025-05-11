@@ -17,12 +17,9 @@ import { URLInputForm } from '@/components/ai-scraping/url-input-form';
 import { ErrorAlert } from '@/components/ai-scraping/error-alert';
 import { ScrapingTabs } from '@/components/ai-scraping/tabs';
 import { AppHeader } from '@/components/global/app-header';
-import type {
-  IGeneratedObjectResult,
-  IURLCounts,
-  PageType,
-} from '@/utils/ai-scraping/common-interfaces';
+import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
 import { initialScrapingState, scrapingReducer } from './reducer';
+import { newsSchema, peopleSchema } from '../api/scrape-entity/schema';
 
 export default function ScrapingPage() {
   const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
@@ -50,94 +47,138 @@ export default function ScrapingPage() {
       return;
     }
 
-    // Update all pending URLs to processing
-    dispatch({
-      type: 'SET_URLS',
-      payload: urls.map((item) =>
-        item.status === 'pending' ? { ...item, status: 'processing' } : item
-      ),
-    });
-
-    try {
-      // Simulate API processing delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Process each URL with mocked data
-      const mockResults = pendingUrls.map((item) => {
-        try {
-          // Simulate occasional errors (10% chance)
-          if (Math.random() < 0.1) {
-            throw new Error('Failed to access website');
-          }
-
-          // Extract domain for mock data generation
-          const domain = new URL(item.url).hostname.replace('www.', '');
-
-          // Generate mock data based on the URL and selected category
-          const mockData = generateMockData(item.url, domain, selectedPageType);
-
-          return {
-            url: item.url,
-            data: mockData,
-            error: null,
-          };
-        } catch (error) {
-          return {
-            url: item.url,
-            data: null,
-            error:
-              error instanceof Error ? error.message : 'Failed to process URL',
-          };
-        }
-      });
-
-      // Update the URLs with the results
-      dispatch({
-        type: 'SET_URLS',
-        payload: urls.map((urlItem) => {
-          // Find this URL in the mock results
-          const result = mockResults.find((r) => r.url === urlItem.url);
-
-          if (result && urlItem.status === 'processing') {
-            return {
-              ...urlItem,
-              status: result.error ? 'error' : 'completed',
-              processedAt: new Date(),
-              error: result.error || undefined,
-              result: result.data || undefined,
-            };
-          }
-          return urlItem;
-        }),
-      });
-
-      // If we have results, switch to the results tab
-      if (mockResults.some((r) => !r.error)) {
-        dispatch({ type: 'SET_ACTIVE_TAB', payload: 'results' });
-      }
-    } catch (err) {
-      console.error('Error processing URLs:', err);
-
-      dispatch({ type: 'SET_API_ERROR', payload: 'Failed to process URLs' });
-
-      // Mark all processing URLs as error
+    // Loop over all URLs and process them
+    for (const urlItem of pendingUrls) {
+      // Set the URL to processing
       dispatch({
         type: 'SET_URLS',
         payload: urls.map((item) =>
-          item.status === 'processing'
-            ? {
-                ...item,
-                status: 'error',
-                processedAt: new Date(),
-                error: 'Processing failed',
-              }
-            : item
+          item.url === urlItem.url ? { ...item, status: 'processing' } : item
         ),
       });
-    } finally {
-      // Reset processing state
-      dispatch({ type: 'SET_IS_PROCESSING', payload: false });
+
+      // Call API to generate object
+      const result = await fetch('/api/scrape-entity/v1', {
+        method: 'POST',
+        body: JSON.stringify({
+          url: urlItem.url,
+          pageType: selectedPageType,
+        }),
+      });
+
+      // Check if the response is ok
+      if (!result.ok) {
+        // Set error on the URL
+        dispatch({
+          type: 'SET_URLS',
+          payload: urls.map((item) =>
+            item.url === urlItem.url
+              ? {
+                  ...item,
+                  status: 'error',
+                  error: 'Failed to process URL',
+                }
+              : item
+          ),
+        });
+
+        continue;
+      }
+
+      // Parse the response
+      const resultJSON = await result.json();
+
+      // Process result based on Page Type
+      switch (urlItem.pageType) {
+        case 'news': {
+          const { success, data } = newsSchema.safeParse(resultJSON);
+
+          if (!success) {
+            dispatch({
+              type: 'SET_URLS',
+              payload: urls.map((item) =>
+                item.url === urlItem.url
+                  ? {
+                      ...item,
+                      status: 'error',
+                      error: 'Failed to parse news data',
+                    }
+                  : item
+              ),
+            });
+
+            continue;
+          }
+
+          // Update the URL with the parsed data
+          dispatch({
+            type: 'SET_URLS',
+            payload: urls.map((item) =>
+              item.url === urlItem.url
+                ? {
+                    ...item,
+                    status: 'completed',
+                    processedAt: new Date(),
+                    result: {
+                      title: data.name,
+                      category: 'news',
+                      url: item.url,
+                      scrapedAt: new Date().toISOString(),
+                      domain: new URL(item.url).hostname,
+                      data,
+                    },
+                  }
+                : item
+            ),
+          });
+        }
+        case 'person': {
+          const { success, data } = peopleSchema.safeParse(resultJSON);
+
+          if (!success) {
+            dispatch({
+              type: 'SET_URLS',
+              payload: urls.map((item) =>
+                item.url === urlItem.url
+                  ? {
+                      ...item,
+                      status: 'error',
+                      error: 'Failed to parse person data',
+                    }
+                  : item
+              ),
+            });
+
+            continue;
+          }
+
+          // Update the URL with the parsed data
+          dispatch({
+            type: 'SET_URLS',
+            payload: urls.map((item) =>
+              item.url === urlItem.url
+                ? {
+                    ...item,
+                    status: 'completed',
+                    processedAt: new Date(),
+                    result: {
+                      title: `${data.preNominal} ${data.firstName} ${data.lastName} ${data.postNominal}`,
+                      category: 'person',
+                      url: item.url,
+                      scrapedAt: new Date().toISOString(),
+                      domain: new URL(item.url).hostname,
+                      data,
+                    },
+                  }
+                : item
+            ),
+          });
+        }
+      }
     }
+
+    // Reset processing state
+    dispatch({ type: 'SET_IS_PROCESSING', payload: false });
   };
 
   // Count URLs by status
@@ -217,78 +258,4 @@ export default function ScrapingPage() {
       </div>
     </div>
   );
-}
-
-// Helper function to generate mock data based on the URL and category
-function generateMockData(
-  url: string,
-  domain: string,
-  pageType: PageType
-): IGeneratedObjectResult | null {
-  // Generate different types of data based on the URL path and selected category
-  const path = new URL(url).pathname.toLowerCase();
-
-  // Basic data that all responses will have
-  const baseData = {
-    title: `${domain.charAt(0).toUpperCase() + domain.slice(1)} - ${
-      path.length > 1 ? path.split('/').pop() : 'Home Page'
-    }`,
-    url: url,
-    scrapedAt: new Date().toISOString(),
-    domain: domain,
-    category: pageType,
-  };
-
-  // Generate category-specific data
-  switch (pageType) {
-    case 'person':
-      return {
-        ...baseData,
-        result: {
-          preNominal: 'Mr.',
-          postNominal: 'PhD',
-          firstName: 'John',
-          lastName: 'Doe',
-          slug: `${domain}-john-doe`,
-          seo: {
-            title: `Profile of ${domain} - John Doe`,
-            description: `Learn more about John Doe, a key figure at ${domain}.`,
-            keywords: ['HR', 'Profile', 'John Doe', domain],
-          },
-          position: 'Senior HR Manager',
-          contactLinks: [
-            {
-              icon: 'email',
-              link: `mailto:john.doe@${domain}.com`,
-            },
-            {
-              icon: 'linkedin',
-              link: `https://www.linkedin.com/in/johndoe`,
-            },
-            {
-              icon: 'phone',
-              link: `tel:+1234567890`,
-            },
-          ],
-          image: `https://example.com/images/${domain}-john-doe.jpg`,
-          content: `<p>John Doe is a Senior HR Manager at ${domain}. He has over 10 years of experience in the HR field.</p>`,
-        },
-      };
-
-    case 'news':
-      return {
-        ...baseData,
-        result: {
-          name: `Latest News from ${domain}`,
-          slug: `${domain}-latest-news`,
-          image: `https://example.com/images/${domain}-news.jpg`,
-          content: `<p>Stay updated with the latest news from ${domain}. We cover all the important events and updates.</p>`,
-          publishDate: new Date(),
-        },
-      };
-
-    default:
-      // Fallback to generic data
-      return null;
-  }
 }
