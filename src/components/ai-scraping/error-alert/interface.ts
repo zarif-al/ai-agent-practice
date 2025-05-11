@@ -1,4 +1,10 @@
+import type {
+  IScrapingState,
+  ScrapingAction,
+} from '@/app/ai-scraping/reducer/interface';
+import type { Dispatch } from 'react';
+
 export interface IErrorAlertProps {
-  apiError: string | null;
-  setApiError: (error: string | null) => void;
+  dispatch: Dispatch<ScrapingAction>;
+  state: IScrapingState;
 }
