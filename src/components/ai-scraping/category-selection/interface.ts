@@ -1,7 +1,10 @@
-import type { PageType } from '@/app/ai-scraping/interface';
+import type {
+  IScrapingState,
+  ScrapingAction,
+} from '@/app/ai-scraping/reducer/interface';
+import type { Dispatch } from 'react';
 
 export interface IScrapingCategorySelection {
-  selectedPageType: PageType;
-  handlePageTypeChange: (value: PageType) => void;
-  isProcessing: boolean;
+  state: IScrapingState;
+  dispatch: Dispatch<ScrapingAction>;
 }

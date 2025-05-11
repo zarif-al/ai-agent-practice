@@ -1,15 +1,14 @@
-import {
-  PAGE_TYPE_DISPLAY_NAMES,
-  type PageType,
-} from '@/app/ai-scraping/interface';
 import { Label } from '@/components/global/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/global/ui/radio-group';
 import type { IScrapingCategorySelection } from './interface';
+import {
+  PAGE_TYPE_DISPLAY_NAMES,
+  type PageType,
+} from '../../../utils/ai-scraping/common-interfaces';
 
 export function ScrapingCategorySelection({
-  handlePageTypeChange,
-  isProcessing,
-  selectedPageType,
+  dispatch,
+  state,
 }: IScrapingCategorySelection) {
   return (
     <div className="mb-6">
@@ -17,10 +16,15 @@ export function ScrapingCategorySelection({
         Select Data Category to Scrape
       </h3>
       <RadioGroup
-        value={selectedPageType}
-        onValueChange={(value: PageType) => handlePageTypeChange(value)}
+        value={state.selectedPageType}
+        onValueChange={(pageType: PageType) => {
+          dispatch({
+            type: 'HANDLE_PAGE_TYPE_CHANGE',
+            payload: { pageType, urls: state.urls },
+          });
+        }}
         className="flex flex-col space-y-1 sm:flex-row sm:space-y-0 sm:space-x-6"
-        disabled={isProcessing}
+        disabled={state.isProcessing}
       >
         {Object.entries(PAGE_TYPE_DISPLAY_NAMES).map(([value, label]) => (
           <div key={value} className="flex items-center space-x-2">
