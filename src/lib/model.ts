@@ -15,13 +15,14 @@ export function model(type: 'ollama' | 'google'): LanguageModelV1 {
         simulateStreaming: true,
       });
     case 'google':
-      const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+      const GOOGLE_GENERATIVE_AI_API_KEY =
+        process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
-      if (!GOOGLE_API_KEY) {
+      if (!GOOGLE_GENERATIVE_AI_API_KEY) {
         throw new Error('GOOGLE_API_KEY environment variable is not set');
       }
 
-      return google('gemini-1.5-pro-latest');
+      return google('gemini-2.0-flash');
     default:
       throw new Error(`Unknown model type: ${type}`);
   }
