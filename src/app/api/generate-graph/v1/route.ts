@@ -1,18 +1,10 @@
-import {
-  appendResponseMessages,
-  InvalidToolArgumentsError,
-  NoSuchToolError,
-  streamText,
-  ToolExecutionError,
-  APICallError,
-  TypeValidationError,
-} from 'ai';
+import { appendResponseMessages, streamText } from 'ai';
 import { z } from 'zod';
 import tablesJSON from '@/db/schema/tables.json';
 import { model } from '@/lib/model';
 import { saveChat } from '@/utils/ai-dashboard/chat-store';
 import { generateGraphObjectsTool } from './tool';
-import { log } from '@/utils/global/logger';
+import { log, logVercelAISDKError } from '@/utils/global/logger';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -65,21 +57,7 @@ export async function POST(req: Request) {
         });
       },
       onError({ error }) {
-        if (NoSuchToolError.isInstance(error)) {
-          log.error('No such tool error:', { message: error.message });
-        } else if (InvalidToolArgumentsError.isInstance(error)) {
-          log.error('Invalid tool arguments error:', {
-            message: error.message,
-          });
-        } else if (ToolExecutionError.isInstance(error)) {
-          log.error('Tool execution error:', { message: error.message });
-        } else if (APICallError.isInstance(error)) {
-          log.error('API call error:', { message: error.message });
-        } else if (TypeValidationError.isInstance(error)) {
-          log.error('Type validation error:', { message: error.message });
-        } else {
-          log.error('Unknown error:', { message: error });
-        }
+        logVercelAISDKError(error);
       },
     });
 
