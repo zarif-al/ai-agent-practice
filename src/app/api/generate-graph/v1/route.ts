@@ -12,6 +12,7 @@ import tablesJSON from '@/db/schema/tables.json';
 import { model } from '@/lib/model';
 import { saveChat } from '@/utils/ai-dashboard/chat-store';
 import { generateGraphObjectsTool } from './tool';
+import { log } from '@/utils/global/logger';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -19,7 +20,8 @@ export async function POST(req: Request) {
   const { success, data } = requestBodySchema.safeParse(body);
 
   if (!success) {
-    console.error('Invalid request body:', data);
+    log.error('Invalid request body:', { data });
+
     return new Response('Invalid request body', { status: 400 });
   }
 
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
         generateGraphObjects: generateGraphObjectsTool,
       },
       onStepFinish({ toolCalls, finishReason, stepType }) {
-        console.log('Step finished:', {
+        log.info('Step finished:', {
           stepType,
           toolCalls: toolCalls.map((tool) => tool.toolName),
           finishReason,
@@ -64,17 +66,19 @@ export async function POST(req: Request) {
       },
       onError({ error }) {
         if (NoSuchToolError.isInstance(error)) {
-          console.error('No such tool error:', error.message);
+          log.error('No such tool error:', { message: error.message });
         } else if (InvalidToolArgumentsError.isInstance(error)) {
-          console.error('Invalid tool arguments error:', error.message);
+          log.error('Invalid tool arguments error:', {
+            message: error.message,
+          });
         } else if (ToolExecutionError.isInstance(error)) {
-          console.error('Tool execution error:', error.message);
+          log.error('Tool execution error:', { message: error.message });
         } else if (APICallError.isInstance(error)) {
-          console.error('API call error:', error.message);
+          log.error('API call error:', { message: error.message });
         } else if (TypeValidationError.isInstance(error)) {
-          console.error('Type validation error:', error.message);
+          log.error('Type validation error:', { message: error.message });
         } else {
-          console.error('Unknown error:', error);
+          log.error('Unknown error:', { message: error });
         }
       },
     });
@@ -85,7 +89,7 @@ export async function POST(req: Request) {
 
     return result.toDataStreamResponse();
   } catch (error) {
-    console.error('Error generating graph:', error);
+    log.error('Error generating graph:', { message: error });
 
     return new Response('AI Model is not available. Please try again later.', {
       status: 500,
