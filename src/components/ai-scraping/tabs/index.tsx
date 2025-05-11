@@ -1,9 +1,4 @@
-import {
-  PAGE_TYPE_DISPLAY_NAMES,
-  type IURLCounts,
-  type PageType,
-  type UrlItem,
-} from '@/app/ai-scraping/interface';
+import { PAGE_TYPE_DISPLAY_NAMES } from '@/utils/ai-scraping/common-interfaces';
 import { Badge } from '@/components/global/ui/badge';
 import { ScrollArea } from '@/components/global/ui/scroll-area';
 import {
@@ -27,49 +22,42 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/global/ui/accordion';
-
-interface Props {
-  urlCounts: IURLCounts;
-  urls: UrlItem[];
-  isProcessing: boolean;
-  activeTab: string;
-  setActiveTab: (value: string) => void;
-  selectedPageType: PageType;
-  setUrls: React.Dispatch<React.SetStateAction<UrlItem[]>>;
-}
+import type { IScrapingTabsProps } from './interface';
 
 export function ScrapingTabs({
   urlCounts,
-  urls,
-  isProcessing,
-  activeTab,
-  setActiveTab,
-  selectedPageType,
-  setUrls,
-}: Props) {
+  dispatch,
+  state,
+}: IScrapingTabsProps) {
+  const selectedPageTypeDisplayName =
+    PAGE_TYPE_DISPLAY_NAMES[state.selectedPageType];
+
   // Remove URL from the list
   const handleRemoveUrl = (id: string) => {
-    setUrls((prev) => prev.filter((item) => item.id !== id));
+    dispatch({
+      type: 'SET_URLS',
+      payload: state.urls.filter((item) => item.id !== id),
+    });
   };
 
   // Get completed URLs with results
-  const completedUrls = urls.filter(
+  const completedUrls = state.urls.filter(
     (url) => url.status === 'completed' && url.result
   );
 
   // Format date
-  const formatDate = (date: Date) => {
+  function formatDate(date: Date) {
     return date.toLocaleString(undefined, {
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
     });
-  };
+  }
 
   // Export results as JSON
   const handleExportResults = () => {
-    const results = urls
+    const results = state.urls
       .filter((url) => url.status === 'completed' && url.result)
       .map((url) => url.result);
 
@@ -85,7 +73,7 @@ export function ScrapingTabs({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `hr-scraping-results-${selectedPageType}-${
+    a.download = `hr-scraping-results-${state.selectedPageType}-${
       new Date().toISOString().split('T')[0]
     }.json`;
     document.body.appendChild(a);
@@ -95,7 +83,13 @@ export function ScrapingTabs({
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs
+      value={state.activeTab}
+      onValueChange={(activeTab: string) => {
+        dispatch({ type: 'SET_ACTIVE_TAB', payload: activeTab });
+      }}
+      className="w-full"
+    >
       <TabsList className="grid w-full grid-cols-2 mb-4">
         <TabsTrigger value="urls">URLs ({urlCounts.total})</TabsTrigger>
         <TabsTrigger value="results" disabled={completedUrls.length === 0}>
@@ -108,7 +102,7 @@ export function ScrapingTabs({
         <div className="border rounded-md">
           <div className="p-3 border-b bg-muted/50 flex justify-between items-center">
             <div className="font-medium">
-              URLs to Process - {PAGE_TYPE_DISPLAY_NAMES[selectedPageType]}
+              URLs to Process - {selectedPageTypeDisplayName}
             </div>
             <div className="flex gap-2">
               {urlCounts.total > 0 && (
@@ -154,23 +148,23 @@ export function ScrapingTabs({
           </div>
 
           {/* No URLs  */}
-          {urls.length === 0 && (
+          {state.urls.length === 0 && (
             <div className="p-8 text-center">
               <div className="text-muted-foreground mb-2">
                 No URLs added yet
               </div>
               <p className="text-sm text-muted-foreground">
-                Add URLs above to extract{' '}
-                {PAGE_TYPE_DISPLAY_NAMES[selectedPageType]} data from websites
+                Add URLs above to extract {selectedPageTypeDisplayName} data
+                from websites
               </p>
             </div>
           )}
 
           {/* URLS List */}
-          {urls.length > 0 && (
+          {state.urls.length > 0 && (
             <ScrollArea className="h-[300px]">
               <div className="divide-y">
-                {urls.map((item) => (
+                {state.urls.map((item) => (
                   <div
                     key={item.id}
                     className="p-3 flex items-start justify-between hover:bg-muted/30"
@@ -227,7 +221,7 @@ export function ScrapingTabs({
                       variant="ghost"
                       size="icon"
                       onClick={() => handleRemoveUrl(item.id)}
-                      disabled={isProcessing}
+                      disabled={state.isProcessing}
                       className="ml-2 text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="size-4" />
@@ -246,8 +240,8 @@ export function ScrapingTabs({
         <div className="border rounded-md">
           <div className="p-3 border-b bg-muted/50 flex justify-between items-center">
             <div className="font-medium">
-              {PAGE_TYPE_DISPLAY_NAMES[selectedPageType]} Results (
-              {completedUrls.length})
+              {selectedPageTypeDisplayName}
+              Results ({completedUrls.length})
             </div>
             <Button
               variant="outline"
@@ -301,8 +295,7 @@ export function ScrapingTabs({
                       <AccordionContent className="px-4 pb-4">
                         <div className="bg-muted/30 p-4 rounded-md">
                           <h4 className="font-medium mb-2">
-                            Scraped {PAGE_TYPE_DISPLAY_NAMES[selectedPageType]}{' '}
-                            Data
+                            Scraped {selectedPageTypeDisplayName} Data
                           </h4>
                           <pre className="text-sm overflow-auto p-2 bg-background rounded border max-h-[300px]">
                             {JSON.stringify(item.result, null, 2)}
