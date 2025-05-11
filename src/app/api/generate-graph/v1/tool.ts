@@ -1,19 +1,11 @@
 import 'server-only';
 
-import {
-  tool,
-  APICallError,
-  generateObject,
-  InvalidToolArgumentsError,
-  NoSuchToolError,
-  ToolExecutionError,
-  TypeValidationError,
-} from 'ai';
+import { tool, generateObject } from 'ai';
 import { db } from '@/db';
 import { sql } from 'drizzle-orm';
-import { ollamaModel } from '@/lib/model';
+import { model } from '@/lib/model';
 import { z } from 'zod';
-import { log } from '@/utils/global/logger';
+import { log, logVercelAISDKError } from '@/utils/global/logger';
 import { graphObjectSchema } from './schemas';
 
 /**
@@ -50,7 +42,7 @@ export const generateGraphObjectsTool = tool({
       });
 
       const { object } = await generateObject({
-        model: ollamaModel,
+        model: model('ollama'),
         schemaName: 'reCharts_graphing_data',
         schemaDescription:
           'The graph type and the data to be used to render the graph. The acceptable values for the graph type are "bar", "line", "pie".',
@@ -72,19 +64,7 @@ export const generateGraphObjectsTool = tool({
         data: object,
       };
     } catch (error) {
-      if (NoSuchToolError.isInstance(error)) {
-        log.error('No such tool error:', { message: error.message });
-      } else if (InvalidToolArgumentsError.isInstance(error)) {
-        log.error('Invalid tool arguments error:', { message: error.message });
-      } else if (ToolExecutionError.isInstance(error)) {
-        log.error('Tool execution error:', { message: error.message });
-      } else if (APICallError.isInstance(error)) {
-        log.error('API call error:', { message: error.message });
-      } else if (TypeValidationError.isInstance(error)) {
-        log.error('Type validation error:', { message: error.message });
-      } else {
-        log.error('Unknown error:', { message: error });
-      }
+      logVercelAISDKError(error);
 
       return {
         success: false,

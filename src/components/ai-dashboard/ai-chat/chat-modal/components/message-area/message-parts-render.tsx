@@ -51,12 +51,12 @@ export function MessagePartsRender({ parts }: IMessagePartsRender) {
             }
           }
           default: {
-            return <></>;
+            return null;
           }
         }
       }
       default: {
-        return <></>;
+        return null;
       }
     }
   });

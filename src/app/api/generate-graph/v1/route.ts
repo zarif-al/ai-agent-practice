@@ -1,17 +1,10 @@
-import {
-  appendResponseMessages,
-  InvalidToolArgumentsError,
-  NoSuchToolError,
-  streamText,
-  ToolExecutionError,
-  APICallError,
-  TypeValidationError,
-} from 'ai';
+import { appendResponseMessages, streamText } from 'ai';
 import { z } from 'zod';
 import tablesJSON from '@/db/schema/tables.json';
-import { ollamaModel } from '@/lib/model';
+import { model } from '@/lib/model';
 import { saveChat } from '@/utils/ai-dashboard/chat-store';
 import { generateGraphObjectsTool } from './tool';
+import { log, logVercelAISDKError } from '@/utils/global/logger';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -19,7 +12,8 @@ export async function POST(req: Request) {
   const { success, data } = requestBodySchema.safeParse(body);
 
   if (!success) {
-    console.error('Invalid request body:', data);
+    log.error('Invalid request body:', { data });
+
     return new Response('Invalid request body', { status: 400 });
   }
 
@@ -30,7 +24,7 @@ export async function POST(req: Request) {
     await saveChat({ id, messages });
 
     const result = await streamText({
-      model: ollamaModel,
+      model: model('ollama'),
       system:
         `Here is the database schema of the system you are working with :
 				 Schema: ${JSON.stringify(tablesJSON, null, 2)}
@@ -47,7 +41,7 @@ export async function POST(req: Request) {
         generateGraphObjects: generateGraphObjectsTool,
       },
       onStepFinish({ toolCalls, finishReason, stepType }) {
-        console.log('Step finished:', {
+        log.info('Step finished:', {
           stepType,
           toolCalls: toolCalls.map((tool) => tool.toolName),
           finishReason,
@@ -63,19 +57,7 @@ export async function POST(req: Request) {
         });
       },
       onError({ error }) {
-        if (NoSuchToolError.isInstance(error)) {
-          console.error('No such tool error:', error.message);
-        } else if (InvalidToolArgumentsError.isInstance(error)) {
-          console.error('Invalid tool arguments error:', error.message);
-        } else if (ToolExecutionError.isInstance(error)) {
-          console.error('Tool execution error:', error.message);
-        } else if (APICallError.isInstance(error)) {
-          console.error('API call error:', error.message);
-        } else if (TypeValidationError.isInstance(error)) {
-          console.error('Type validation error:', error.message);
-        } else {
-          console.error('Unknown error:', error);
-        }
+        logVercelAISDKError(error);
       },
     });
 
@@ -85,7 +67,7 @@ export async function POST(req: Request) {
 
     return result.toDataStreamResponse();
   } catch (error) {
-    console.error('Error generating graph:', error);
+    log.error('Error generating graph:', { message: error });
 
     return new Response('AI Model is not available. Please try again later.', {
       status: 500,

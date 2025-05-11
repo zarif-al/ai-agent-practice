@@ -34,7 +34,7 @@ export async function handleExportResults(
     };
   }
 
-  const fileName = `hr-scraping-results-${selectedPageType}-${
+  const fileName = `scraping-results-${selectedPageType}-${
     new Date().toISOString().split('T')[0]
   }.json`;
 
@@ -71,9 +71,24 @@ export async function handleExportResults(
       };
     }
   } else {
+    // Fallback for browsers that do not support `showSaveFilePicker`
+    const blob = new Blob([JSON.stringify(results, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scraping-results-${selectedPageType}-${
+      new Date().toISOString().split('T')[0]
+    }.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     return {
-      success: false,
-      message: 'Your browser does not support the modern file saving API.',
+      success: true,
+      message: 'Results exported successfully',
     };
   }
 }

@@ -11,8 +11,14 @@ export interface IScrapingState {
   pendingPageType: PageType | null;
 }
 
+type SetUrlsPayload = UrlItem[] | ((prevUrls: UrlItem[]) => UrlItem[]);
+
 export type ScrapingAction =
-  | { type: 'SET_URLS'; payload: UrlItem[] }
+  | {
+      type: 'SET_URLS';
+      // Inside async calls to setUrls, we can pass a function that takes the previous state and returns the new state
+      payload: SetUrlsPayload;
+    }
   | { type: 'SET_IS_PROCESSING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_API_ERROR'; payload: string | null }
