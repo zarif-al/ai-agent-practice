@@ -23,6 +23,8 @@ import {
   AccordionTrigger,
 } from '@/components/global/ui/accordion';
 import type { IScrapingTabsProps } from './interface';
+import { formatDate, handleExportResults } from '@/utils/ai-scraping/helpers';
+import { toast } from 'sonner';
 
 export function ScrapingTabs({
   urlCounts,
@@ -44,43 +46,6 @@ export function ScrapingTabs({
   const completedUrls = state.urls.filter(
     (url) => url.status === 'completed' && url.result
   );
-
-  // Format date
-  function formatDate(date: Date) {
-    return date.toLocaleString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  }
-
-  // Export results as JSON
-  const handleExportResults = () => {
-    const results = state.urls
-      .filter((url) => url.status === 'completed' && url.result)
-      .map((url) => url.result);
-
-    if (results.length === 0) {
-      return;
-    }
-
-    const blob = new Blob([JSON.stringify(results, null, 2)], {
-      type: 'application/json',
-    });
-
-    // Blob URL Download - a better way would be `showSaveFilePicker`
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `hr-scraping-results-${state.selectedPageType}-${
-      new Date().toISOString().split('T')[0]
-    }.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   return (
     <Tabs
@@ -246,7 +211,18 @@ export function ScrapingTabs({
             <Button
               variant="outline"
               size="sm"
-              onClick={handleExportResults}
+              onClick={async () => {
+                const results = await handleExportResults(
+                  state.urls,
+                  state.selectedPageType
+                );
+
+                if (results.success) {
+                  toast.success(results.message);
+                } else {
+                  toast.error(results.message);
+                }
+              }}
               disabled={completedUrls.length === 0}
               className="gap-1"
             >
