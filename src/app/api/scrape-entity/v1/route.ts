@@ -1,15 +1,7 @@
-import { model } from '@/lib/model';
-import {
-  APICallError,
-  generateObject,
-  InvalidToolArgumentsError,
-  NoSuchToolError,
-  ToolExecutionError,
-  TypeValidationError,
-} from 'ai';
 import { z } from 'zod';
 import { newsSchema, peopleSchema } from '../schema';
-import { log } from '@/utils/global/logger';
+import { log, logVercelAISDKError } from '@/utils/global/logger';
+import { scrapPageV1 } from './utils';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -27,92 +19,24 @@ export async function POST(req: Request) {
   try {
     switch (pageType) {
       case 'person': {
-        const { object, usage, warnings } = await generateObject({
-          model: model('google'),
-          schemaName: 'Person',
-          schema: peopleSchema,
-          system:
-            `You will receive a web page URL of a university person` +
-            `Please extract the data from this web page.`,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'file',
-                  data: new URL(url),
-                  mimeType: 'text/html',
-                },
-              ],
-            },
-          ],
-        });
-
-        log.info('Usage: ', {
+        return await scrapPageV1(
+          'Person',
+          peopleSchema,
           url,
-          usage,
-        });
-
-        log.warning('Warnings: ', {
-          url,
-          warnings,
-        });
-
-        return new Response(JSON.stringify(object), { status: 200 });
+          `You will receive a web page URL of a university person. Please extract the data from this web page.`
+        );
       }
       case 'news': {
-        const { object, usage, warnings } = await generateObject({
-          model: model('google'),
-          schemaName: 'News',
-          schema: newsSchema,
-          system:
-            `You will receive a web page URL of a university news topic` +
-            `Please extract the data from this web page.`,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'file',
-                  data: new URL(url),
-                  mimeType: 'text/html',
-                },
-              ],
-            },
-          ],
-        });
-
-        log.info('Usage: ', {
+        return await scrapPageV1(
+          'News',
+          newsSchema,
           url,
-          usage,
-        });
-
-        if (warnings) {
-          log.warning('Warnings: ', {
-            url,
-            warnings,
-          });
-        }
-
-        return new Response(JSON.stringify(object), { status: 200 });
+          'You will receive a web page URL of a university news topic. Please extract the data from this web page.'
+        );
       }
     }
   } catch (error) {
-    if (NoSuchToolError.isInstance(error)) {
-      log.error('No such tool error:', { message: error.message });
-    } else if (InvalidToolArgumentsError.isInstance(error)) {
-      log.error('Invalid tool arguments error:', {
-        message: error.message,
-      });
-    } else if (ToolExecutionError.isInstance(error)) {
-      log.error('Tool execution error:', { message: error.message });
-    } else if (APICallError.isInstance(error)) {
-      log.error('API call error:', { message: error.message });
-    } else if (TypeValidationError.isInstance(error)) {
-      log.error('Type validation error:', { message: error.message });
-    } else {
-      log.error('Unknown error:', { message: error });
-    }
+    logVercelAISDKError(error);
 
     return new Response('AI Model is not available. Please try again later.', {
       status: 500,
