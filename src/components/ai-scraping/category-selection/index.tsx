@@ -12,9 +12,7 @@ export function ScrapingCategorySelection({
 }: IScrapingCategorySelection) {
   return (
     <div className="mb-6">
-      <h3 className="text-sm font-medium mb-3">
-        Select Data Category to Scrape
-      </h3>
+      <h3 className="text-sm font-medium mb-3">Select Page Type to Scrape</h3>
       <RadioGroup
         value={state.selectedPageType}
         onValueChange={(pageType: PageType) => {

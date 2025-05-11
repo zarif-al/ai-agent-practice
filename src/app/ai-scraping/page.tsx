@@ -156,10 +156,9 @@ export default function ScrapingPage() {
       <div className="container mx-auto py-6 px-4">
         <Card className="w-full mx-auto">
           <CardHeader>
-            <CardTitle>HR Data Scraping Tool</CardTitle>
+            <CardTitle>Data Scraping Tool</CardTitle>
             <CardDescription>
-              Add URLs to extract HR data from websites, job boards, and company
-              pages
+              Add URLs to extract entity specific data from websites.
             </CardDescription>
           </CardHeader>
 
