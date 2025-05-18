@@ -36,14 +36,14 @@ export const peopleSchema = z.object({
   content: z
     .string()
     .describe(
-      'The HTML content of the person containing biographical and personal achievements data.'
+      'The HTML content of the person containing biographical and personal achievements data. Include content hidden inside other UI. Only exclude the title and position.'
     ),
   confidenceLevel: z
     .number()
     .min(0)
     .max(10)
     .describe(
-      'The confidence level of the scraped data. How confident are you that you have scraped all the revelant data?'
+      'How confident are you that you have scraped all the revelant data? Score between 0 and 10. 0 means not confident at all, 10 means completely confident.'
     ),
 });
 
