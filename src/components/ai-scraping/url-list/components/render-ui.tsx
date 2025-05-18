@@ -83,17 +83,6 @@ export function RenderUiView({
             </div>
           </div>
 
-          {/* Biography Section */}
-          <section>
-            <h4 className="text-lg font-medium mb-2">Richtext Content</h4>
-            <div
-              className="prose prose-sm max-w-none overflow-x-auto"
-              dangerouslySetInnerHTML={{ __html: data.content }}
-            />
-          </section>
-
-          <Separator />
-
           {/* SEO Section */}
           <section>
             <h4 className="text-lg font-medium mb-2">SEO Information</h4>
@@ -121,6 +110,17 @@ export function RenderUiView({
                 </div>
               </div>
             </div>
+          </section>
+
+          <Separator />
+
+          {/* Biography Section */}
+          <section>
+            <h4 className="text-lg font-medium mb-2">Richtext Content</h4>
+            <div
+              className="prose prose-sm max-w-none overflow-x-auto"
+              dangerouslySetInnerHTML={{ __html: data.content }}
+            />
           </section>
         </div>
       );
