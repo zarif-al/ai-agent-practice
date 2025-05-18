@@ -10,3 +10,8 @@ export interface IUrlListProps {
   state: IScrapingState;
   dispatch: Dispatch<ScrapingAction>;
 }
+
+export interface IViewMode {
+  id: string;
+  viewMode: 'json' | 'ui';
+}

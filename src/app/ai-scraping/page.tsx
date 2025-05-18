@@ -1,7 +1,7 @@
 'use client';
 
 import { useReducer } from 'react';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Download } from 'lucide-react';
 import { Button } from '@/components/global/ui/button';
 import {
   Card,
@@ -178,6 +178,34 @@ export default function ScrapingPage() {
     error: urls.filter((u) => u.status === 'error').length,
   };
 
+  // Export results as JSON (This can be improved)
+  const handleExportResults = () => {
+    const results = urls
+      .filter((url) => url.status === 'completed' && url.result)
+      .map((url) => ({
+        url: url.url,
+        processedAt: url.processedAt,
+        category: state.selectedPageType,
+        data: url.result,
+      }));
+
+    if (results.length === 0) return;
+
+    const blob = new Blob([JSON.stringify(results, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `hr-scraping-results-${state.selectedPageType}-${
+      new Date().toISOString().split('T')[0]
+    }.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader title="AI Scraping" disableSidebarToggle />
@@ -201,27 +229,32 @@ export default function ScrapingPage() {
             {/* API Error Alert */}
             <ErrorAlert dispatch={dispatch} state={state} />
 
-            {/* Tabs for URLs and Results */}
-            {/* <ScrapingTabs
-              urlCounts={urlCounts}
-              dispatch={dispatch}
-              state={state}
-            /> */}
-
             {/* Unifiend Results View */}
             <UrlList urlCounts={urlCounts} dispatch={dispatch} state={state} />
           </CardContent>
 
           <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                dispatch({ type: 'HANDLE_CLEAR_URLS' });
-              }}
-              disabled={urls.length === 0 || isProcessing}
-            >
-              Clear All
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  dispatch({ type: 'HANDLE_CLEAR_URLS' });
+                }}
+                disabled={urls.length === 0 || isProcessing}
+              >
+                Clear All
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={handleExportResults}
+                disabled={urlCounts.completed === 0}
+                className="gap-1"
+              >
+                <Download className="size-4 mr-1" />
+                Export Results
+              </Button>
+            </div>
 
             <Button
               onClick={handleProcessUrls}

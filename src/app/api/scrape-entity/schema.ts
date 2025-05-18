@@ -33,7 +33,18 @@ export const peopleSchema = z.object({
     )
     .optional(),
   image: z.string().describe("The URL of the person's image"),
-  content: z.string().describe('The HTML content of the news'),
+  content: z
+    .string()
+    .describe(
+      'The HTML content of the person containing biographical and personal achievements data.'
+    ),
+  confidenceLevel: z
+    .number()
+    .min(0)
+    .max(10)
+    .describe(
+      'The confidence level of the scraped data. How confident are you that you have scraped all the revelant data?'
+    ),
 });
 
 export type Person = z.infer<typeof peopleSchema>;
@@ -44,6 +55,13 @@ export const newsSchema = z.object({
   image: z.string().url().describe('The URL of the news image'),
   content: z.string().describe('The HTML content of the news'),
   publishDate: z.date().describe('The publish date of the news'),
+  confidenceLevel: z
+    .number()
+    .min(0)
+    .max(10)
+    .describe(
+      'The confidence level of the scraped data. How confident are you that you have scraped all the revelant data?'
+    ),
 });
 
 export type News = z.infer<typeof newsSchema>;
