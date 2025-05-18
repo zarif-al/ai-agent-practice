@@ -248,7 +248,7 @@ export default function ScrapingPage() {
               <Button
                 variant="outline"
                 onClick={handleExportResults}
-                disabled={urlCounts.completed === 0}
+                disabled={isProcessing}
                 className="gap-1"
               >
                 <Download className="size-4 mr-1" />
