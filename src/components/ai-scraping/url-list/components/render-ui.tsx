@@ -64,7 +64,6 @@ export function RenderUiView({
                   </span>
                 )}
               </h3>
-              <ConfidenceBadge level={data.confidenceLevel} />
               <p className="text-slate-600">{data.position}</p>
               <div className="flex flex-wrap gap-1 mt-2">
                 {data.contactLinks?.map((contact, index) => (
@@ -173,25 +172,4 @@ const ContactIcon = ({ iconName }: { iconName: string }) => {
     default:
       return <Globe className="h-5 w-5" />;
   }
-};
-
-const ConfidenceBadge = ({ level }: { level: number }) => {
-  // Determine color based on confidence level
-  const getColorClass = (level: number) =>
-    level >= 7
-      ? 'bg-green-100 text-green-800 border-green-300'
-      : level >= 4
-      ? 'bg-yellow-100 text-yellow-800 border-yellow-300'
-      : 'bg-red-100 text-red-800 border-red-300';
-
-  const colorClass = getColorClass(level);
-
-  return (
-    <div
-      className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium border ${colorClass} max-w-fit`}
-    >
-      <span className="mr-1">Confidence:</span>
-      <span className="font-bold">{level}/10</span>
-    </div>
-  );
 };

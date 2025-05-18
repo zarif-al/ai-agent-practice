@@ -38,6 +38,7 @@ import {
 import { useState } from 'react';
 import { ScrollArea } from '@/components/global/ui/scroll-area';
 import { RenderUiView } from './components/render-ui';
+import { ConfidenceBadge } from './components/confidence-badge';
 
 export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
   const [viewModes, setViewModes] = useState<IViewMode[]>(
@@ -134,6 +135,12 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
                         </a>
 
                         <StatusBadge status={item.status} />
+
+                        {item.result && (
+                          <ConfidenceBadge
+                            confidence={item.result.data.confidenceLevel}
+                          />
+                        )}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Added: {formatDate(item.addedAt)}
