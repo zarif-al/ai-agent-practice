@@ -15,11 +15,11 @@ import { WarningDialog } from '@/components/ai-scraping/warning-modal';
 import { ScrapingCategorySelection } from '@/components/ai-scraping/category-selection';
 import { URLInputForm } from '@/components/ai-scraping/url-input-form';
 import { ErrorAlert } from '@/components/ai-scraping/error-alert';
-import { ScrapingTabs } from '@/components/ai-scraping/tabs';
 import { AppHeader } from '@/components/global/app-header';
 import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
 import { initialScrapingState, scrapingReducer } from './reducer';
 import { newsSchema, peopleSchema } from '../api/scrape-entity/schema';
+import { UrlList } from '@/components/ai-scraping/url-list';
 
 export default function ScrapingPage() {
   const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
@@ -202,11 +202,14 @@ export default function ScrapingPage() {
             <ErrorAlert dispatch={dispatch} state={state} />
 
             {/* Tabs for URLs and Results */}
-            <ScrapingTabs
+            {/* <ScrapingTabs
               urlCounts={urlCounts}
               dispatch={dispatch}
               state={state}
-            />
+            /> */}
+
+            {/* Unifiend Results View */}
+            <UrlList urlCounts={urlCounts} dispatch={dispatch} state={state} />
           </CardContent>
 
           <CardFooter className="flex justify-between">

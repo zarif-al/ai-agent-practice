@@ -5,7 +5,7 @@ import type {
 import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
 import type { Dispatch } from 'react';
 
-export interface IScrapingTabsProps {
+export interface IUrlListProps {
   urlCounts: IURLCounts;
   state: IScrapingState;
   dispatch: Dispatch<ScrapingAction>;
