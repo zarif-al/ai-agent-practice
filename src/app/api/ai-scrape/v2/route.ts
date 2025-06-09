@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { newsSchema, peopleSchema } from '../schema';
 import { log, logVercelAISDKError } from '@/utils/global/logger';
-import { scrapPageV1 } from './utils';
+import { scrapPageV2 } from './utils';
+import { peopleSchema } from '../schema/person';
+import { newsSchema } from '../schema/news';
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -19,20 +20,10 @@ export async function POST(req: Request) {
   try {
     switch (pageType) {
       case 'person': {
-        return await scrapPageV1(
-          'Person',
-          peopleSchema,
-          url,
-          `You will receive a web page URL of a university person. Please extract the data from this web page.`
-        );
+        return await scrapPageV2('Person', peopleSchema, url);
       }
       case 'news': {
-        return await scrapPageV1(
-          'News',
-          newsSchema,
-          url,
-          'You will receive a web page URL of a university news topic. Please extract the data from this web page.'
-        );
+        return await scrapPageV2('News', newsSchema, url);
       }
     }
   } catch (error) {
