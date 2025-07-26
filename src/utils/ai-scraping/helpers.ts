@@ -23,9 +23,12 @@ export async function handleExportResults(
   urls: UrlItem[],
   selectedPageType: Category
 ): Promise<{ success: boolean; message: string }> {
+  /**
+   * TODO: Update this code to not use the first item in results array.
+   */
   const results = urls
-    .filter((url) => url.status === 'completed' && url.result)
-    .map((url) => url.result);
+    .filter((url) => url.status === 'completed' && url.results)
+    .map((url) => url.results?.[0]);
 
   if (results.length === 0) {
     return {

@@ -12,12 +12,13 @@ export interface UrlItem {
   addedAt: Date;
   processedAt?: Date;
   error?: string;
-  result?: IGeneratedObjectResult;
+  results?: IGeneratedObjectResult[];
   category: Category;
 }
 
 // AI Scrape results interface
 export interface IGeneratedObjectResult {
+  _id: string;
   title: string;
   url: string;
   scrapedAt: string;

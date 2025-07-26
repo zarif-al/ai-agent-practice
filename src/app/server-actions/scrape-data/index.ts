@@ -8,6 +8,7 @@ import { generateObject } from 'ai';
 import { model } from '@/lib/model';
 import { log } from '@/utils/global/logger';
 import type { UrlItem } from '@/utils/ai-scraping/common-interfaces';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function scrapContent({
   item,
@@ -25,14 +26,17 @@ export async function scrapContent({
         ...item,
         status: 'completed',
         processedAt: new Date(),
-        result: {
-          title: `${personScrapeResult.preNominal} ${personScrapeResult.firstName} ${personScrapeResult.lastName} ${personScrapeResult.postNominal}`,
-          category: 'person',
-          url: item.url,
-          scrapedAt: new Date().toISOString(),
-          domain: new URL(item.url).hostname,
-          data: personScrapeResult,
-        },
+        results: [
+          {
+            _id: uuidv4(),
+            title: `${personScrapeResult.preNominal} ${personScrapeResult.firstName} ${personScrapeResult.lastName} ${personScrapeResult.postNominal}`,
+            category: 'person',
+            url: item.url,
+            scrapedAt: new Date().toISOString(),
+            domain: new URL(item.url).hostname,
+            data: personScrapeResult,
+          },
+        ],
       };
 
     case 'news':
@@ -47,14 +51,17 @@ export async function scrapContent({
         ...item,
         status: 'completed',
         processedAt: new Date(),
-        result: {
-          title: newsScrapeResult.name,
-          category: 'news',
-          url: item.url,
-          scrapedAt: new Date().toISOString(),
-          domain: new URL(item.url).hostname,
-          data: newsScrapeResult,
-        },
+        results: [
+          {
+            _id: uuidv4(),
+            title: newsScrapeResult.name,
+            category: 'news',
+            url: item.url,
+            scrapedAt: new Date().toISOString(),
+            domain: new URL(item.url).hostname,
+            data: newsScrapeResult,
+          },
+        ],
       };
 
     default:

@@ -1,27 +1,9 @@
 import { CATEGORY_DISPLAY_NAMES } from '@/utils/ai-scraping/common-interfaces';
-import type { IUrlListProps, IViewMode } from './interface';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/global/ui/accordion';
+import type { IUrlListProps } from './interface';
 import { StatusBadge } from './components/status-badge';
-import {
-  AlertCircle,
-  Code,
-  ExternalLink,
-  Layout,
-  Loader2,
-  Trash2,
-} from 'lucide-react';
+import { ExternalLink, Trash2 } from 'lucide-react';
 import { formatDate } from '@/utils/ai-scraping/helpers';
 import { Button } from '@/components/global/ui/button';
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/components/global/ui/alert';
 import {
   Tooltip,
   TooltipContent,
@@ -29,25 +11,19 @@ import {
   TooltipTrigger,
 } from '@/components/global/ui/tooltip';
 import { Badge } from '@/components/global/ui/badge';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/global/ui/tabs';
-import { useState } from 'react';
 import { ScrollArea } from '@/components/global/ui/scroll-area';
-import { RenderUiView } from './components/render-ui';
-import { ConfidenceBadge } from './components/confidence-badge';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/global/ui/dialog';
 
 export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
-  const [viewModes, setViewModes] = useState<IViewMode[]>(
-    state.urls.map((url) => ({
-      id: url.id,
-      viewMode: 'json',
-    }))
-  );
-
   const selectedPageTypeDisplayName =
     CATEGORY_DISPLAY_NAMES[state.selectedCategory];
 
@@ -60,6 +36,7 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
 
   return (
     <div className="border rounded-md">
+      {/* Top Bar */}
       <div className="p-3 border-b bg-muted/50 flex justify-between items-center">
         <div className="font-medium">
           URLs to Process - {selectedPageTypeDisplayName}
@@ -118,8 +95,11 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
         <ScrollArea className="h-[500px]">
           <div className="divide-y">
             {state.urls.map((item) => (
-              <Accordion type="single" collapsible key={item.id}>
-                <AccordionItem value={item.id} className="border-0">
+              <Dialog key={item.id}>
+                <DialogTrigger
+                  asChild
+                  disabled={state.urls?.[0]?.status !== 'completed'}
+                >
                   <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/30">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -135,12 +115,6 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
                         </a>
 
                         <StatusBadge status={item.status} />
-
-                        {item.result && (
-                          <ConfidenceBadge
-                            confidence={item.result.data.confidenceLevel}
-                          />
-                        )}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Added: {formatDate(item.addedAt)}
@@ -163,115 +137,33 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
                         <Trash2 className="size-4" />
                         <span className="sr-only">Remove</span>
                       </Button>
-
-                      <AccordionTrigger className="cursor-pointer text-muted-foreground" />
                     </div>
                   </div>
-
-                  <AccordionContent className="px-4 pb-4 overflow-hidden">
-                    {/* Show error message if there is one */}
-                    {item.error && (
-                      <Alert variant="destructive" className="mb-4">
-                        <AlertCircle className="size-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{item.error}</AlertDescription>
-                      </Alert>
-                    )}
-
-                    {/* Show loading state if processing */}
-                    {item.status === 'processing' && (
-                      <div className="flex items-center justify-center p-8">
-                        <div className="flex flex-col items-center gap-2">
-                          <Loader2 className="size-8 text-primary animate-spin" />
-                          <p className="text-sm text-muted-foreground">
-                            Processing URL...
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Show results if completed */}
-                    {item.status === 'completed' && item.result && (
-                      <div className="mb-4">
-                        <Tabs
-                          value={
-                            viewModes.find((mode) => mode.id === item.id)
-                              ?.viewMode || 'json'
-                          }
-                          onValueChange={(value) => {
-                            setViewModes((prev) => {
-                              const updatedModes = prev.map((mode) => {
-                                if (mode.id === item.id) {
-                                  return {
-                                    ...mode,
-                                    viewMode: value as IViewMode['viewMode'],
-                                  };
-                                }
-                                return mode;
-                              });
-
-                              return updatedModes;
-                            });
-                          }}
-                          className="w-full"
-                        >
-                          <TabsList className="grid w-full max-w-xs grid-cols-2">
-                            <TabsTrigger
-                              value="json"
-                              className="flex items-center gap-1"
-                            >
-                              <Code className="size-4" />
-                              <span>JSON View</span>
-                            </TabsTrigger>
-                            <TabsTrigger
-                              value="ui"
-                              className="flex items-center gap-1"
-                            >
-                              <Layout className="size-4" />
-                              <span>UI View</span>
-                            </TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="json">
-                            <div className="bg-muted/30 p-4 rounded-md overflow-hidden">
-                              <h4 className="font-medium mb-2">
-                                Scraped {selectedPageTypeDisplayName} Data
-                                (JSON)
-                              </h4>
-                              <pre className="text-sm overflow-auto p-2 bg-background rounded border max-h-[300px] whitespace-pre-wrap break-all">
-                                {JSON.stringify(item.result, null, 2)}
-                              </pre>
-                            </div>
-                          </TabsContent>
-                          <TabsContent value="ui">
-                            <div className="bg-muted/30 p-4 rounded-md">
-                              <h4 className="font-medium mb-2">
-                                Scraped {selectedPageTypeDisplayName} Data (UI)
-                              </h4>
-                              <div className="bg-background rounded border p-4 overflow-x-auto">
-                                <RenderUiView
-                                  result={item.result}
-                                  selectedPageTypeDisplayName={
-                                    selectedPageTypeDisplayName
-                                  }
-                                />
-                              </div>
-                            </div>
-                          </TabsContent>
-                        </Tabs>
-                      </div>
-                    )}
-
-                    {/* Show pending state */}
-                    {item.status === 'pending' && (
-                      <div className="flex items-center justify-center p-8">
-                        <p className="text-sm text-muted-foreground">
-                          URL is pending processing
-                        </p>
-                      </div>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Share link</DialogTitle>
+                    <DialogDescription>
+                      Anyone who has this link will be able to view this.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="bg-muted/30 p-4 rounded-md overflow-hidden">
+                    <h4 className="font-medium mb-2">
+                      Scraped {selectedPageTypeDisplayName} Data (JSON)
+                    </h4>
+                    <pre className="text-sm overflow-auto p-2 bg-background rounded border max-h-[300px] whitespace-pre-wrap break-all">
+                      {JSON.stringify(item.results?.[0], null, 2)}
+                    </pre>
+                  </div>
+                  <DialogFooter className="sm:justify-start">
+                    <DialogClose asChild>
+                      <Button type="button" variant="secondary">
+                        Close
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             ))}
           </div>
         </ScrollArea>
