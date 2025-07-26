@@ -1,5 +1,5 @@
-import type { News } from '@/app/api/ai-scrape/schema/news';
-import type { Person } from '@/app/api/ai-scrape/schema/person';
+import type { News } from '@/app/server-actions/scrape-data/schema/news';
+import type { Person } from '@/app/server-actions/scrape-data/schema/person';
 
 // URL status types
 export type UrlStatus = 'pending' | 'processing' | 'completed' | 'error';

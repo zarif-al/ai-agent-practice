@@ -15,8 +15,8 @@ import {
 import Image from 'next/image';
 import { ConfidenceBadge } from './confidence-badge';
 import { formatDate } from '@/utils/ai-scraping/helpers';
-import { peopleSchema } from '@/app/api/ai-scrape/schema/person';
-import { newsSchema } from '@/app/api/ai-scrape/schema/news';
+import { peopleSchema } from '@/app/server-actions/scrape-data/schema/person';
+import { newsSchema } from '@/app/server-actions/scrape-data/schema/news';
 
 interface IRenderUiViewProps {
   result: IGeneratedObjectResult;
