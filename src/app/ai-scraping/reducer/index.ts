@@ -1,50 +1,59 @@
 import type { IScrapingState, ScrapingAction } from './interface';
 
 export const initialScrapingState: IScrapingState = {
+  // urls: [
+  //   {
+  //     id: 'url-1746956645786',
+  //     url: 'https://www.merton.ox.ac.uk/people/professor-rhiannon-ash',
+  //     status: 'pending',
+  //     addedAt: new Date(),
+  //     pageType: 'person',
+  //   },
+  //   {
+  //     id: 'url-1746956649697',
+  //     url: 'https://www.merton.ox.ac.uk/people/professor-jennifer-payne',
+  //     status: 'pending',
+  //     addedAt: new Date(),
+  //     pageType: 'person',
+  //   },
+  //   {
+  //     id: 'url-1746956652952',
+  //     url: 'https://www.merton.ox.ac.uk/people/professor-judith-armitage',
+  //     status: 'pending',
+  //     addedAt: new Date(),
+  //     pageType: 'person',
+  //   },
+  //   {
+  //     id: 'url-1746956657092',
+  //     url: 'https://www.merton.ox.ac.uk/people/nicholas-w-allard',
+  //     status: 'pending',
+  //     addedAt: new Date(),
+  //     pageType: 'person',
+  //   },
+  //   {
+  //     id: 'url-1746956660268',
+  //     url: 'https://www.merton.ox.ac.uk/people/honourable-dame-kelyn-bacon',
+  //     status: 'pending',
+  //     addedAt: new Date(),
+  //     pageType: 'person',
+  //   },
+  // ],
   urls: [
     {
       id: 'url-1746956645786',
-      url: 'https://www.merton.ox.ac.uk/people/professor-rhiannon-ash',
+      url: 'https://www.merton.ox.ac.uk/news/new-lighting-installed-college-chapel',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
-    },
-    {
-      id: 'url-1746956649697',
-      url: 'https://www.merton.ox.ac.uk/people/professor-jennifer-payne',
-      status: 'pending',
-      addedAt: new Date(),
-      pageType: 'person',
-    },
-    {
-      id: 'url-1746956652952',
-      url: 'https://www.merton.ox.ac.uk/people/professor-judith-armitage',
-      status: 'pending',
-      addedAt: new Date(),
-      pageType: 'person',
-    },
-    {
-      id: 'url-1746956657092',
-      url: 'https://www.merton.ox.ac.uk/people/nicholas-w-allard',
-      status: 'pending',
-      addedAt: new Date(),
-      pageType: 'person',
-    },
-    {
-      id: 'url-1746956660268',
-      url: 'https://www.merton.ox.ac.uk/people/honourable-dame-kelyn-bacon',
-      status: 'pending',
-      addedAt: new Date(),
-      pageType: 'person',
+      category: 'news',
     },
   ],
   isProcessing: false,
   error: null,
   apiError: null,
   activeTab: 'urls',
-  selectedPageType: 'person',
+   selectedCategory: 'news',
   showPageTypeWarning: false,
-  pendingPageType: null,
+  pendingCategory: null,
 };
 
 export const scrapingReducer = (
@@ -69,20 +78,20 @@ export const scrapingReducer = (
     case 'SET_ACTIVE_TAB':
       return { ...state, activeTab: action.payload };
     case 'HANDLE_PAGE_TYPE_CHANGE': {
-      const { pageType, urls } = action.payload;
+      const { category, urls } = action.payload;
 
       // If there are no URLs, directly update the selectedPageType
       if (urls.length === 0) {
         return {
           ...state,
-          selectedPageType: pageType,
+          selectedCategory: category,
           showPageTypeWarning: false,
-          pendingPageType: null,
+          pendingCategory: null,
         };
       }
 
       // Otherwise, show the warning and set the pendingPageType
-      return { ...state, pendingPageType: pageType, showPageTypeWarning: true };
+      return { ...state, pendingCategory: category, showPageTypeWarning: true };
     }
     case 'HANDLE_CLEAR_URLS':
       return {
@@ -91,17 +100,17 @@ export const scrapingReducer = (
         activeTab: 'urls',
       };
     case 'HANDLE_PAGE_TYPE_WARNING_CONFIRM': {
-      const { pendingPageType } = state;
+      const { pendingCategory } = state;
 
-      if (!pendingPageType) {
+      if (!pendingCategory) {
         return state;
       }
 
       return {
         ...state,
-        selectedPageType: pendingPageType,
+        selectedCategory: pendingCategory,
         showPageTypeWarning: false,
-        pendingPageType: null,
+        pendingCategory: null,
         urls: [],
         activeTab: 'urls',
         error: null,
@@ -113,7 +122,7 @@ export const scrapingReducer = (
       return {
         ...state,
         showPageTypeWarning: false,
-        pendingPageType: null,
+        pendingCategory: null,
       };
     }
     default:

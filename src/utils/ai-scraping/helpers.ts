@@ -1,4 +1,4 @@
-import type { PageType, UrlItem } from './common-interfaces';
+import type { Category, UrlItem } from './common-interfaces';
 
 // URL validation regex
 const URL_REGEX = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i;
@@ -21,7 +21,7 @@ export function formatDate(date: Date) {
 // Export results as JSON
 export async function handleExportResults(
   urls: UrlItem[],
-  selectedPageType: PageType
+  selectedPageType: Category
 ): Promise<{ success: boolean; message: string }> {
   const results = urls
     .filter((url) => url.status === 'completed' && url.result)

@@ -1,5 +1,5 @@
 import {
-  PAGE_TYPE_DISPLAY_NAMES,
+  CATEGORY_DISPLAY_NAMES,
   type UrlItem,
 } from '@/utils/ai-scraping/common-interfaces';
 import { Button } from '@/components/global/ui/button';
@@ -62,7 +62,7 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
       url: trimmedUrl,
       status: 'pending',
       addedAt: new Date(),
-      pageType: state.selectedPageType,
+      category: state.selectedCategory,
     };
 
     dispatch({
@@ -98,7 +98,7 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
               });
             }}
             placeholder={`Enter website URL for ${
-              PAGE_TYPE_DISPLAY_NAMES[state.selectedPageType]
+              CATEGORY_DISPLAY_NAMES[state.selectedCategory]
             } data`}
             className="w-full"
             disabled={state.isProcessing}

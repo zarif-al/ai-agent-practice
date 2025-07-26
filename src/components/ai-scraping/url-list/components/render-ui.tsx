@@ -1,4 +1,3 @@
-import { peopleSchema } from '@/app/api/scrape-entity/schema';
 import { Badge } from '@/components/global/ui/badge';
 import type { IGeneratedObjectResult } from '@/utils/ai-scraping/common-interfaces';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
@@ -11,7 +10,13 @@ import {
   Mail,
   Phone,
   Globe,
+  Calendar,
 } from 'lucide-react';
+import Image from 'next/image';
+import { ConfidenceBadge } from './confidence-badge';
+import { formatDate } from '@/utils/ai-scraping/helpers';
+import { peopleSchema } from '@/app/api/ai-scrape/schema/person';
+import { newsSchema } from '@/app/api/ai-scrape/schema/news';
 
 interface IRenderUiViewProps {
   result: IGeneratedObjectResult;
@@ -24,9 +29,9 @@ export function RenderUiView({
 }: IRenderUiViewProps) {
   switch (result.category) {
     case 'person':
-      const parseResult = peopleSchema.safeParse(result.data);
+      const peopleParseResult = peopleSchema.safeParse(result.data);
 
-      if (parseResult.success === false) {
+      if (peopleParseResult.success === false) {
         return (
           <div>
             <h4 className="font-medium mb-2">Error</h4>
@@ -39,7 +44,7 @@ export function RenderUiView({
         );
       }
 
-      const data = parseResult.data;
+      const personData = peopleParseResult.data;
 
       return (
         <div className="space-y-6">
@@ -47,26 +52,27 @@ export function RenderUiView({
           <div className="flex flex-col sm:flex-row gap-4 items-start">
             <Avatar className="h-20 w-20 rounded-md border-2 border-slate-200">
               <AvatarImage
-                src={data.image || '/placeholder.svg'}
-                alt={`${data.firstName} ${data.lastName}`}
+                src={personData.image || '/placeholder.svg'}
+                alt={`${personData.firstName} ${personData.lastName}`}
               />
               <AvatarFallback className="text-3xl rounded-md">
-                {data.firstName.charAt(0)}
-                {data.lastName.charAt(0)}
+                {personData.firstName.charAt(0)}
+                {personData.lastName.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-2 ">
               <h3 className="text-xl font-semibold">
-                {data.preNominal} {data.firstName} {data.lastName}{' '}
-                {data.postNominal && (
+                {personData.preNominal} {personData.firstName}{' '}
+                {personData.lastName}{' '}
+                {personData.postNominal && (
                   <span className="text-sm font-normal">
-                    {data.postNominal}
+                    {personData.postNominal}
                   </span>
                 )}
               </h3>
-              <p className="text-slate-600">{data.position}</p>
+              <p className="text-slate-600">{personData.position}</p>
               <div className="flex flex-wrap gap-1 mt-2">
-                {data.contactLinks?.map((contact, index) => (
+                {personData.contactLinks?.map((contact, index) => (
                   <a
                     key={index}
                     href={contact.link}
@@ -89,19 +95,19 @@ export function RenderUiView({
               <div>
                 <h5 className="font-medium mb-1">Title</h5>
                 <p className="p-2 bg-slate-50 rounded-md border text-slate-700">
-                  {data.seo.title}
+                  {personData.seo.title}
                 </p>
               </div>
               <div>
                 <h5 className="font-medium mb-1">Description</h5>
                 <p className="p-2 bg-slate-50 rounded-md border text-slate-700">
-                  {data.seo.description}
+                  {personData.seo.description}
                 </p>
               </div>
               <div>
                 <h5 className="font-medium mb-1">Keywords</h5>
                 <div className="flex flex-wrap gap-1">
-                  {data.seo.keywords.map((keyword, index) => (
+                  {personData.seo.keywords.map((keyword, index) => (
                     <Badge key={index} variant="secondary" className="text-xs">
                       {keyword}
                     </Badge>
@@ -118,24 +124,87 @@ export function RenderUiView({
             <h4 className="text-lg font-medium mb-2">Richtext Content</h4>
             <div
               className="prose prose-sm max-w-none overflow-x-auto"
-              dangerouslySetInnerHTML={{ __html: data.content }}
+              dangerouslySetInnerHTML={{ __html: personData.content }}
             />
           </section>
         </div>
       );
     case 'news':
-      return (
-        <div>
-          <h4 className="font-medium mb-2">
-            Scraped {selectedPageTypeDisplayName} Data (UI)
-          </h4>
-          <div className="bg-background rounded border p-4">
-            <div className="text-sm text-muted-foreground">
-              No UI view available for this page type
+      const newsParseResult = newsSchema.safeParse(result.data);
+
+      if (newsParseResult.success === false) {
+        return (
+          <div>
+            <h4 className="font-medium mb-2">Error</h4>
+            <div className="bg-background rounded border p-4">
+              <div className="text-sm text-muted-foreground">
+                Failed to parse {selectedPageTypeDisplayName} data
+              </div>
             </div>
           </div>
+        );
+      }
+
+      const newsData = newsParseResult.data;
+
+      return (
+        <div className="space-y-6">
+          {/* Image Section */}
+          {newsData.image && (
+            <div className="rounded-lg overflow-hidden border border-slate-200">
+              <Image
+                src={newsData.image}
+                alt={newsData.name}
+                className="w-full h-auto object-cover max-h-[400px]"
+                height={400}
+                width={800}
+                unoptimized
+              />
+            </div>
+          )}
+
+          {/* Metadata Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              <span>{formatDate(new Date(newsData.publishDate))}</span>
+            </div>
+            <ConfidenceBadge confidence={newsData.confidenceLevel} />
+          </div>
+
+          {/* Content Section */}
+          <div
+            className="prose prose-slate max-w-none"
+            dangerouslySetInnerHTML={{ __html: newsData.content }}
+          />
+
+          <Separator className="my-2" />
+
+          {/* Metadata Section */}
+          <section className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+            <h4 className="text-sm font-medium text-slate-700 mb-3">
+              Article Metadata
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h5 className="font-medium text-slate-700 mb-1">Slug</h5>
+                <p className="p-2 bg-white rounded-md border border-slate-200 text-slate-600 font-mono text-xs">
+                  {newsData.slug}
+                </p>
+              </div>
+              <div>
+                <h5 className="font-medium text-slate-700 mb-1">
+                  Publish Date
+                </h5>
+                <p className="p-2 bg-white rounded-md border border-slate-200 text-slate-600 font-mono text-xs">
+                  {formatDate(new Date(newsData.publishDate))}
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
       );
+
     default:
       return (
         <div>

@@ -1,4 +1,4 @@
-import { PAGE_TYPE_DISPLAY_NAMES } from '@/utils/ai-scraping/common-interfaces';
+import { CATEGORY_DISPLAY_NAMES } from '@/utils/ai-scraping/common-interfaces';
 import type { IUrlListProps, IViewMode } from './interface';
 import {
   Accordion,
@@ -49,7 +49,7 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
   );
 
   const selectedPageTypeDisplayName =
-    PAGE_TYPE_DISPLAY_NAMES[state.selectedPageType];
+    CATEGORY_DISPLAY_NAMES[state.selectedCategory];
 
   const handleRemoveUrl = (id: string) => {
     dispatch({

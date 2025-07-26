@@ -1,4 +1,5 @@
-import type { News, Person } from '@/app/api/scrape-entity/schema';
+import type { News } from '@/app/api/ai-scrape/schema/news';
+import type { Person } from '@/app/api/ai-scrape/schema/person';
 
 // URL status types
 export type UrlStatus = 'pending' | 'processing' | 'completed' | 'error';
@@ -12,7 +13,7 @@ export interface UrlItem {
   processedAt?: Date;
   error?: string;
   result?: IGeneratedObjectResult;
-  pageType: PageType;
+  category: Category;
 }
 
 // AI Scrape results interface
@@ -21,17 +22,16 @@ export interface IGeneratedObjectResult {
   url: string;
   scrapedAt: string;
   domain: string;
-  category: PageType;
+  category: Category;
   data: Person | News;
 }
 
-// Page types
-export type PageType = 'person' | 'news';
+export type Category = 'general_page' | 'person' | 'news';
 
-// Page type display names
-export const PAGE_TYPE_DISPLAY_NAMES: Record<PageType, string> = {
+export const CATEGORY_DISPLAY_NAMES: Record<Category, string> = {
   person: 'Person',
   news: 'News',
+  general_page: 'General Page',
 };
 
 // URL counts interface

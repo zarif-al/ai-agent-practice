@@ -1,4 +1,4 @@
-import type { PageType, UrlItem } from '@/utils/ai-scraping/common-interfaces';
+import type { Category, UrlItem } from '@/utils/ai-scraping/common-interfaces';
 
 export interface IScrapingState {
   urls: UrlItem[];
@@ -6,9 +6,9 @@ export interface IScrapingState {
   error: string | null;
   apiError: string | null;
   activeTab: string;
-  selectedPageType: PageType;
+  selectedCategory: Category;
   showPageTypeWarning: boolean;
-  pendingPageType: PageType | null;
+  pendingCategory: Category | null;
 }
 
 type SetUrlsPayload = UrlItem[] | ((prevUrls: UrlItem[]) => UrlItem[]);
@@ -25,7 +25,7 @@ export type ScrapingAction =
   | { type: 'SET_ACTIVE_TAB'; payload: string }
   | {
       type: 'HANDLE_PAGE_TYPE_CHANGE';
-      payload: { pageType: PageType; urls: UrlItem[] };
+      payload: { category: Category; urls: UrlItem[] };
     }
   | { type: 'HANDLE_CLEAR_URLS' }
   | {

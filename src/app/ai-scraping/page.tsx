@@ -18,12 +18,13 @@ import { ErrorAlert } from '@/components/ai-scraping/error-alert';
 import { AppHeader } from '@/components/global/app-header';
 import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
 import { initialScrapingState, scrapingReducer } from './reducer';
-import { newsSchema, peopleSchema } from '../api/scrape-entity/schema';
 import { UrlList } from '@/components/ai-scraping/url-list';
+import { newsSchema } from '../api/ai-scrape/schema/news';
+import { peopleSchema } from '../api/ai-scrape/schema/person';
 
 export default function ScrapingPage() {
   const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
-  const { urls, isProcessing, selectedPageType } = state;
+  const { urls, isProcessing, selectedCategory } = state;
 
   // Process all URLs with mocked responses
   const handleProcessUrls = async () => {
@@ -61,11 +62,11 @@ export default function ScrapingPage() {
 
       try {
         // Call API to generate object
-        const result = await fetch('/api/scrape-entity/v1', {
+        const result = await fetch('/api/ai-scrape/v1', {
           method: 'POST',
           body: JSON.stringify({
             url: urlItem.url,
-            pageType: selectedPageType,
+            pageType: selectedCategory,
           }),
         });
 
@@ -77,7 +78,7 @@ export default function ScrapingPage() {
         const resultJSON = await result.json();
 
         // Process result based on Page Type
-        switch (urlItem.pageType) {
+        switch (urlItem.category) {
           case 'news': {
             const { success, data } = newsSchema.safeParse(resultJSON);
 
@@ -185,7 +186,7 @@ export default function ScrapingPage() {
       .map((url) => ({
         url: url.url,
         processedAt: url.processedAt,
-        category: state.selectedPageType,
+        category: state.selectedCategory,
         data: url.result,
       }));
 
@@ -197,7 +198,7 @@ export default function ScrapingPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `hr-scraping-results-${state.selectedPageType}-${
+    a.download = `hr-scraping-results-${state.selectedCategory}-${
       new Date().toISOString().split('T')[0]
     }.json`;
     document.body.appendChild(a);
