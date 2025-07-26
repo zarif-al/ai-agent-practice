@@ -36,7 +36,10 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
     if (!isValidUrl(trimmedUrl)) {
       dispatch({
         type: 'SET_ERROR',
-        payload: 'Please enter a valid URL',
+        payload: {
+          type: 'error',
+          message: 'Please enter a valid URL',
+        },
       });
 
       return;
@@ -50,7 +53,10 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
     ) {
       dispatch({
         type: 'SET_ERROR',
-        payload: 'This URL is already in the list',
+        payload: {
+          type: 'error',
+          message: 'This URL is already in the list',
+        },
       });
 
       return;
@@ -72,7 +78,7 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
 
     setInputUrl('');
 
-    dispatch({ type: 'SET_ERROR', payload: null });
+    dispatch({ type: 'SET_ERROR', payload: undefined });
   };
 
   return (
@@ -94,7 +100,7 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
               // Reset Error on input change
               dispatch({
                 type: 'SET_ERROR',
-                payload: null,
+                payload: undefined,
               });
             }}
             placeholder={`Enter website URL for ${
@@ -104,7 +110,9 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
             disabled={state.isProcessing}
           />
           {state.error && (
-            <p className="text-sm text-destructive mt-1">{state.error}</p>
+            <p className="text-sm text-destructive mt-1">
+              {state.error.message}
+            </p>
           )}
         </div>
         <Button type="submit" disabled={!inputUrl.trim() || state.isProcessing}>

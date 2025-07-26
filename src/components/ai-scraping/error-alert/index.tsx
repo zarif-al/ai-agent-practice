@@ -8,7 +8,7 @@ import { AlertCircle } from 'lucide-react';
 import type { IErrorAlertProps } from './interface';
 
 export function ErrorAlert({ dispatch, state }: IErrorAlertProps) {
-  if (!state.apiError) {
+  if (!state.error || state.error.type !== 'apiError') {
     return null;
   }
 
@@ -17,15 +17,15 @@ export function ErrorAlert({ dispatch, state }: IErrorAlertProps) {
       <AlertCircle className="size-4" />
       <AlertTitle>Error Processing URLs</AlertTitle>
       <AlertDescription className="flex flex-col gap-2">
-        <p>{state.apiError}</p>
+        <p>{state.error.message}</p>
         <Button
           variant="outline"
           size="sm"
           className="self-end gap-2 mt-2"
           onClick={() => {
             dispatch({
-              type: 'SET_API_ERROR',
-              payload: null,
+              type: 'SET_ERROR',
+              payload: undefined,
             });
           }}
         >

@@ -19,8 +19,8 @@ import { AppHeader } from '@/components/global/app-header';
 import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
 import { initialScrapingState, scrapingReducer } from './reducer';
 import { UrlList } from '@/components/ai-scraping/url-list';
-import { newsSchema } from '../api/ai-scrape/schema/news';
-import { peopleSchema } from '../api/ai-scrape/schema/person';
+import { scrapContent } from '../server-actions/scrape-data';
+import { handleExportResults } from '@/utils/ai-scraping/helpers';
 
 export default function ScrapingPage() {
   const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
@@ -33,6 +33,7 @@ export default function ScrapingPage() {
         type: 'SET_ERROR',
         payload: { type: 'error', message: 'No URLs to process' },
       });
+
       return;
     }
 
@@ -42,7 +43,7 @@ export default function ScrapingPage() {
     // Set processing state
     dispatch({ type: 'SET_IS_PROCESSING', payload: true });
 
-    // Get incomplete items
+    // Get incomplete
     const incompleteUrls = urls.filter((url) => url.status !== 'completed');
 
     if (incompleteUrls.length === 0) {
@@ -64,80 +65,27 @@ export default function ScrapingPage() {
 
       try {
         // Call API to generate object
-        const result = await fetch('/api/ai-scrape/v1', {
-          method: 'POST',
-          body: JSON.stringify({
-            url: urlItem.url,
-            pageType: selectedCategory,
-          }),
-        });
-
-        if (!result.ok) {
-          throw new Error('Failed to process URL');
-        }
-
-        // Parse the response
-        const resultJSON = await result.json();
+        const result = await scrapContent({ item: urlItem });
 
         // Process result based on Page Type
         switch (urlItem.category) {
           case 'news': {
-            const { success, data } = newsSchema.safeParse(resultJSON);
-
-            if (!success) {
-              throw new Error('Failed to parse news data');
-            }
-
             dispatch({
               type: 'SET_URLS',
               payload: (prevUrls) =>
                 prevUrls.map((item) =>
-                  item.url === urlItem.url
-                    ? {
-                        ...item,
-                        status: 'completed',
-                        processedAt: new Date(),
-                        result: {
-                          title: data.name,
-                          category: 'news',
-                          url: item.url,
-                          scrapedAt: new Date().toISOString(),
-                          domain: new URL(item.url).hostname,
-                          data,
-                        },
-                      }
-                    : item
+                  item.url === urlItem.url ? result : item
                 ),
             });
 
             break;
           }
           case 'person': {
-            const { success, data } = peopleSchema.safeParse(resultJSON);
-
-            if (!success) {
-              throw new Error('Failed to parse person data');
-            }
-
             dispatch({
               type: 'SET_URLS',
               payload: (prevUrls) =>
                 prevUrls.map((item) =>
-                  item.url === urlItem.url
-                    ? {
-                        ...item,
-                        status: 'completed',
-                        processedAt: new Date(),
-                        result: {
-                          title: `${data.preNominal} ${data.firstName} ${data.lastName} ${data.postNominal}`,
-                          category: 'person',
-                          url: item.url,
-                          scrapedAt: new Date().toISOString(),
-                          domain: new URL(item.url).hostname,
-                          data,
-                        },
-                      }
-                    : item
+                  item.url === urlItem.url ? result : item
                 ),
             });
 
@@ -181,34 +129,6 @@ export default function ScrapingPage() {
     error: urls.filter((u) => u.status === 'error').length,
   };
 
-  // Export results as JSON (This can be improved)
-  const handleExportResults = () => {
-    const results = urls
-      .filter((url) => url.status === 'completed' && url.result)
-      .map((url) => ({
-        url: url.url,
-        processedAt: url.processedAt,
-        category: state.selectedCategory,
-        data: url.result,
-      }));
-
-    if (results.length === 0) return;
-
-    const blob = new Blob([JSON.stringify(results, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `hr-scraping-results-${state.selectedCategory}-${
-      new Date().toISOString().split('T')[0]
-    }.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <AppHeader title="AI Scraping" disableSidebarToggle />
@@ -232,7 +152,7 @@ export default function ScrapingPage() {
             {/* API Error Alert */}
             <ErrorAlert dispatch={dispatch} state={state} />
 
-            {/* Unifiend Results View */}
+            {/* Unified Results View */}
             <UrlList urlCounts={urlCounts} dispatch={dispatch} state={state} />
           </CardContent>
 
@@ -250,7 +170,7 @@ export default function ScrapingPage() {
 
               <Button
                 variant="outline"
-                onClick={handleExportResults}
+                onClick={() => handleExportResults(urls, selectedCategory)}
                 disabled={isProcessing}
                 className="gap-1"
               >
