@@ -6,6 +6,12 @@ import { saveChat } from '@/utils/ai-dashboard/chat-store';
 import { generateGraphObjectsTool } from './tool';
 import { log, logVercelAISDKError } from '@/utils/global/logger';
 
+/**
+ * Note: The useChat hook relies on an API route to function correctly.
+ * This API route is used to handle the chat messages and stream responses.
+ * @param req
+ * @returns
+ */
 export async function POST(req: Request) {
   const body = await req.json();
 
