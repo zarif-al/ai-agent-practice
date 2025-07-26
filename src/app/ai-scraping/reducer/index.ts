@@ -1,43 +1,6 @@
 import type { IScrapingState, ScrapingAction } from './interface';
 
 export const initialScrapingState: IScrapingState = {
-  // urls: [
-  //   {
-  //     id: 'url-1746956645786',
-  //     url: 'https://www.merton.ox.ac.uk/people/professor-rhiannon-ash',
-  //     status: 'pending',
-  //     addedAt: new Date(),
-  //     pageType: 'person',
-  //   },
-  //   {
-  //     id: 'url-1746956649697',
-  //     url: 'https://www.merton.ox.ac.uk/people/professor-jennifer-payne',
-  //     status: 'pending',
-  //     addedAt: new Date(),
-  //     pageType: 'person',
-  //   },
-  //   {
-  //     id: 'url-1746956652952',
-  //     url: 'https://www.merton.ox.ac.uk/people/professor-judith-armitage',
-  //     status: 'pending',
-  //     addedAt: new Date(),
-  //     pageType: 'person',
-  //   },
-  //   {
-  //     id: 'url-1746956657092',
-  //     url: 'https://www.merton.ox.ac.uk/people/nicholas-w-allard',
-  //     status: 'pending',
-  //     addedAt: new Date(),
-  //     pageType: 'person',
-  //   },
-  //   {
-  //     id: 'url-1746956660268',
-  //     url: 'https://www.merton.ox.ac.uk/people/honourable-dame-kelyn-bacon',
-  //     status: 'pending',
-  //     addedAt: new Date(),
-  //     pageType: 'person',
-  //   },
-  // ],
   urls: [
     {
       id: 'url-1746956645786',
@@ -48,12 +11,11 @@ export const initialScrapingState: IScrapingState = {
     },
   ],
   isProcessing: false,
-  error: null,
-  apiError: null,
+  error: undefined,
   activeTab: 'urls',
-   selectedCategory: 'news',
+  selectedCategory: 'news',
   showPageTypeWarning: false,
-  pendingCategory: null,
+  pendingCategory: undefined,
 };
 
 export const scrapingReducer = (
@@ -73,8 +35,6 @@ export const scrapingReducer = (
       return { ...state, isProcessing: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload };
-    case 'SET_API_ERROR':
-      return { ...state, apiError: action.payload };
     case 'SET_ACTIVE_TAB':
       return { ...state, activeTab: action.payload };
     case 'HANDLE_PAGE_TYPE_CHANGE': {
@@ -86,7 +46,7 @@ export const scrapingReducer = (
           ...state,
           selectedCategory: category,
           showPageTypeWarning: false,
-          pendingCategory: null,
+          pendingCategory: undefined,
         };
       }
 
@@ -110,11 +70,10 @@ export const scrapingReducer = (
         ...state,
         selectedCategory: pendingCategory,
         showPageTypeWarning: false,
-        pendingCategory: null,
+        pendingCategory: undefined,
         urls: [],
         activeTab: 'urls',
-        error: null,
-        apiError: null,
+        error: undefined,
         isProcessing: false,
       };
     }
@@ -122,7 +81,7 @@ export const scrapingReducer = (
       return {
         ...state,
         showPageTypeWarning: false,
-        pendingCategory: null,
+        pendingCategory: undefined,
       };
     }
     default:
