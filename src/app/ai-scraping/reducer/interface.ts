@@ -3,12 +3,14 @@ import type { Category, UrlItem } from '@/utils/ai-scraping/common-interfaces';
 export interface IScrapingState {
   urls: UrlItem[];
   isProcessing: boolean;
-  error: string | null;
-  apiError: string | null;
+  error?: {
+    type: 'error' | 'apiError';
+    message: string;
+  };
   activeTab: string;
   selectedCategory: Category;
   showPageTypeWarning: boolean;
-  pendingCategory: Category | null;
+  pendingCategory?: Category;
 }
 
 type SetUrlsPayload = UrlItem[] | ((prevUrls: UrlItem[]) => UrlItem[]);
@@ -20,8 +22,13 @@ export type ScrapingAction =
       payload: SetUrlsPayload;
     }
   | { type: 'SET_IS_PROCESSING'; payload: boolean }
-  | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'SET_API_ERROR'; payload: string | null }
+  | {
+      type: 'SET_ERROR';
+      payload?: {
+        type: 'error' | 'apiError';
+        message: string;
+      };
+    }
   | { type: 'SET_ACTIVE_TAB'; payload: string }
   | {
       type: 'HANDLE_PAGE_TYPE_CHANGE';

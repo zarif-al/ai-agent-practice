@@ -29,18 +29,20 @@ export default function ScrapingPage() {
   // Process all URLs with mocked responses
   const handleProcessUrls = async () => {
     if (urls.length === 0) {
-      dispatch({ type: 'SET_API_ERROR', payload: 'No URLs to process' });
+      dispatch({
+        type: 'SET_ERROR',
+        payload: { type: 'error', message: 'No URLs to process' },
+      });
       return;
     }
 
     // Reset any previous errors
-    dispatch({ type: 'SET_ERROR', payload: null });
-    dispatch({ type: 'SET_API_ERROR', payload: null });
+    dispatch({ type: 'SET_ERROR', payload: undefined });
 
     // Set processing state
     dispatch({ type: 'SET_IS_PROCESSING', payload: true });
 
-    // Get only pending URLs
+    // Get incomplete items
     const incompleteUrls = urls.filter((url) => url.status !== 'completed');
 
     if (incompleteUrls.length === 0) {
