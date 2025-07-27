@@ -1,4 +1,7 @@
-import { CATEGORY_DISPLAY_NAMES } from '@/utils/ai-scraping/common-interfaces';
+import {
+  CATEGORY_DISPLAY_NAMES,
+  type UrlItem,
+} from '@/utils/ai-scraping/common-interfaces';
 import type { IUrlListProps } from './interface';
 import { StatusBadge } from './components/status-badge';
 import { ExternalLink, Trash2 } from 'lucide-react';
@@ -12,18 +15,13 @@ import {
 } from '@/components/global/ui/tooltip';
 import { Badge } from '@/components/global/ui/badge';
 import { ScrollArea } from '@/components/global/ui/scroll-area';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/global/ui/dialog';
+import { useState } from 'react';
+import { URLScrapeResults } from './components/modal';
 
 export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
+  const [selectedItem, setSelectedItem] = useState<UrlItem | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const selectedPageTypeDisplayName =
     CATEGORY_DISPLAY_NAMES[state.selectedCategory];
 
@@ -91,83 +89,70 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
         </div>
       )}
 
+      {/* URL List */}
       {state.urls.length > 0 && (
         <ScrollArea className="h-[500px]">
           <div className="divide-y">
             {state.urls.map((item) => (
-              <Dialog key={item.id}>
-                <DialogTrigger
-                  asChild
-                  disabled={state.urls?.[0]?.status !== 'completed'}
-                >
-                  <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/30">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline font-medium truncate"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {item.url}
-                          <ExternalLink className="inline-block size-3 ml-1" />
-                        </a>
+              <div
+                className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
+                key={item.id}
+                onClick={() => {
+                  if (item.status === 'completed') {
+                    setSelectedItem(item);
+                    setIsDialogOpen(true);
+                  }
+                }}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-medium truncate"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {item.url}
+                      <ExternalLink className="inline-block size-3 ml-1" />
+                    </a>
 
-                        <StatusBadge status={item.status} />
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Added: {formatDate(item.addedAt)}
-                        {item.processedAt &&
-                          ` • Processed: ${formatDate(item.processedAt)}`}
-                      </div>
-                    </div>
+                    <StatusBadge status={item.status} />
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Added: {formatDate(item.addedAt)}
+                    {item.processedAt &&
+                      ` • Processed: ${formatDate(item.processedAt)}`}
+                  </div>
+                </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveUrl(item.id);
-                        }}
-                        disabled={state.isProcessing}
-                        className="text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="size-4" />
-                        <span className="sr-only">Remove</span>
-                      </Button>
-                    </div>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Share link</DialogTitle>
-                    <DialogDescription>
-                      Anyone who has this link will be able to view this.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="bg-muted/30 p-4 rounded-md overflow-hidden">
-                    <h4 className="font-medium mb-2">
-                      Scraped {selectedPageTypeDisplayName} Data (JSON)
-                    </h4>
-                    <pre className="text-sm overflow-auto p-2 bg-background rounded border max-h-[300px] whitespace-pre-wrap break-all">
-                      {JSON.stringify(item.results?.[0], null, 2)}
-                    </pre>
-                  </div>
-                  <DialogFooter className="sm:justify-start">
-                    <DialogClose asChild>
-                      <Button type="button" variant="secondary">
-                        Close
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveUrl(item.id);
+                    }}
+                    disabled={state.isProcessing}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" />
+                    <span className="sr-only">Remove</span>
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         </ScrollArea>
       )}
+
+      {/* URL Scrape Results Modal */}
+      <URLScrapeResults
+        isOpen={isDialogOpen}
+        setIsOpen={setIsDialogOpen}
+        selectedItem={selectedItem}
+      />
     </div>
   );
 }
