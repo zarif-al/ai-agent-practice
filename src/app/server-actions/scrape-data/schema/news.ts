@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/* TODO: Update news schema to generate page sections */
 export const newsSchema = z.object({
   name: z.string().describe('The name of the news'),
   slug: z.string().describe('The slug of the news'),
