@@ -57,7 +57,7 @@ export const sampleUrls: IScrapingState['urls'] = {
       url: 'https://www.merton.ox.ac.uk/news/accessible-graduate-accommodation-nearing-completion',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
+      pageType: 'news',
     },
   ],
 };
