@@ -14,6 +14,8 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
   const [inputUrl, setInputUrl] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const selectedPageType = state.selectedPageType;
+
   // Focus input on page load
   useEffect(() => {
     if (inputRef.current) {
@@ -44,7 +46,7 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
 
     // Check if URL already exists in the list
     if (
-      state.urls.some(
+      state.urls[selectedPageType].some(
         (item) => item.url.toLowerCase() === trimmedUrl.toLowerCase()
       )
     ) {
@@ -67,7 +69,10 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
 
     dispatch({
       type: 'SET_URLS',
-      payload: [...state.urls, newUrlItem],
+      payload: (prevUrls) => ({
+        ...prevUrls,
+        [selectedPageType]: [...(prevUrls[selectedPageType] || []), newUrlItem],
+      }),
     });
 
     setInputUrl('');

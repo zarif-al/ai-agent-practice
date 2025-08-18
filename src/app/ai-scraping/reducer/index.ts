@@ -1,7 +1,20 @@
 import type { IScrapingState, ScrapingAction } from './interface';
 
 export const initialScrapingState: IScrapingState = {
-  urls: [
+  urls: {
+    person: [],
+    news: [],
+  },
+  isProcessing: false,
+  error: null,
+  apiError: null,
+  activeTab: 'urls',
+  selectedPageType: 'person',
+  pendingPageType: null,
+};
+
+export const sampleUrls: IScrapingState['urls'] = {
+  person: [
     {
       id: 'url-1746956645786',
       url: 'https://www.merton.ox.ac.uk/people/professor-rhiannon-ash',
@@ -38,13 +51,15 @@ export const initialScrapingState: IScrapingState = {
       pageType: 'person',
     },
   ],
-  isProcessing: false,
-  error: null,
-  apiError: null,
-  activeTab: 'urls',
-  selectedPageType: 'person',
-  showPageTypeWarning: false,
-  pendingPageType: null,
+  news: [
+    {
+      id: 'url-1746956645786',
+      url: 'https://www.merton.ox.ac.uk/news/accessible-graduate-accommodation-nearing-completion',
+      status: 'pending',
+      addedAt: new Date(),
+      pageType: 'person',
+    },
+  ],
 };
 
 export const scrapingReducer = (
@@ -69,53 +84,16 @@ export const scrapingReducer = (
     case 'SET_ACTIVE_TAB':
       return { ...state, activeTab: action.payload };
     case 'HANDLE_PAGE_TYPE_CHANGE': {
-      const { pageType, urls } = action.payload;
+      const { pageType } = action.payload;
 
-      // If there are no URLs, directly update the selectedPageType
-      if (urls.length === 0) {
-        return {
-          ...state,
-          selectedPageType: pageType,
-          showPageTypeWarning: false,
-          pendingPageType: null,
-        };
-      }
-
-      // Otherwise, show the warning and set the pendingPageType
-      return { ...state, pendingPageType: pageType, showPageTypeWarning: true };
+      return {
+        ...state,
+        selectedPageType: pageType,
+        pendingPageType: null,
+      };
     }
     case 'HANDLE_CLEAR_URLS':
-      return {
-        ...state,
-        urls: [],
-        activeTab: 'urls',
-      };
-    case 'HANDLE_PAGE_TYPE_WARNING_CONFIRM': {
-      const { pendingPageType } = state;
-
-      if (!pendingPageType) {
-        return state;
-      }
-
-      return {
-        ...state,
-        selectedPageType: pendingPageType,
-        showPageTypeWarning: false,
-        pendingPageType: null,
-        urls: [],
-        activeTab: 'urls',
-        error: null,
-        apiError: null,
-        isProcessing: false,
-      };
-    }
-    case 'HANDLE_PAGE_TYPE_WARNING_CANCEL': {
-      return {
-        ...state,
-        showPageTypeWarning: false,
-        pendingPageType: null,
-      };
-    }
+      return initialScrapingState;
     default:
       return state;
   }
