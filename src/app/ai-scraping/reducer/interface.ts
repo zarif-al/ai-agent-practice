@@ -1,17 +1,18 @@
 import type { PageType, UrlItem } from '@/utils/ai-scraping/common-interfaces';
 
+type StateUrls = Record<PageType, UrlItem[]>;
+
 export interface IScrapingState {
-  urls: UrlItem[];
+  urls: StateUrls;
   isProcessing: boolean;
   error: string | null;
   apiError: string | null;
   activeTab: string;
   selectedPageType: PageType;
-  showPageTypeWarning: boolean;
   pendingPageType: PageType | null;
 }
 
-type SetUrlsPayload = UrlItem[] | ((prevUrls: UrlItem[]) => UrlItem[]);
+type SetUrlsPayload = StateUrls | ((prevUrls: StateUrls) => StateUrls);
 
 export type ScrapingAction =
   | {
@@ -25,7 +26,7 @@ export type ScrapingAction =
   | { type: 'SET_ACTIVE_TAB'; payload: string }
   | {
       type: 'HANDLE_PAGE_TYPE_CHANGE';
-      payload: { pageType: PageType; urls: UrlItem[] };
+      payload: { pageType: PageType; urls: StateUrls };
     }
   | { type: 'HANDLE_CLEAR_URLS' }
   | {

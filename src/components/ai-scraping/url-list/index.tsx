@@ -25,13 +25,21 @@ import {
 import { Badge } from '@/components/global/ui/badge';
 
 export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
-  const selectedPageTypeDisplayName =
-    PAGE_TYPE_DISPLAY_NAMES[state.selectedPageType];
+  const selectedPageType = state.selectedPageType;
+
+  const selectedPageTypeDisplayName = PAGE_TYPE_DISPLAY_NAMES[selectedPageType];
+
+  const activeUrls = state.urls[selectedPageType] || [];
 
   const handleRemoveUrl = (id: string) => {
     dispatch({
       type: 'SET_URLS',
-      payload: (prevUrls) => prevUrls.filter((item) => item.id !== id),
+      payload: (prevUrls) => ({
+        ...prevUrls,
+        [selectedPageType]: prevUrls[selectedPageType].filter(
+          (item) => item.id !== id
+        ),
+      }),
     });
   };
 
@@ -81,7 +89,7 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
         </div>
       </div>
 
-      {state.urls.length == 0 && (
+      {activeUrls.length == 0 && (
         <div className="p-8 text-center">
           <div className="text-muted-foreground mb-2">No URLs added yet</div>
           <p className="text-sm text-muted-foreground">
@@ -91,10 +99,10 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
         </div>
       )}
 
-      {state.urls.length > 0 && (
+      {activeUrls.length > 0 && (
         <ScrollArea className="h-[500px]">
           <div className="divide-y">
-            {state.urls.map((item) => (
+            {activeUrls.map((item) => (
               <Accordion type="single" collapsible key={item.id}>
                 <AccordionItem value={item.id} className="border-0 ">
                   <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/30">

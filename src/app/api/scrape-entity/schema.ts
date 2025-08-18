@@ -39,11 +39,15 @@ export const peopleSchema = z.object({
 export type Person = z.infer<typeof peopleSchema>;
 
 export const newsSchema = z.object({
-  name: z.string().describe('The name of the news'),
-  slug: z.string().describe('The slug of the news'),
-  image: z.string().url().describe('The URL of the news image'),
-  content: z.string().describe('The HTML content of the news'),
-  publishDate: z.date().describe('The publish date of the news'),
+  name: z.string().describe('The title of the news'),
+  slug: z.string().describe('The page slug of the news'),
+  image: z
+    .string()
+    .describe(
+      'If the news page has a banner image then it should be included here. Otherwise it can be omitted.'
+    ),
+  content: z.string().describe('The main HTML content of the news'),
+  publishDate: z.string().datetime().describe('The publish date of the news'),
 });
 
 export type News = z.infer<typeof newsSchema>;

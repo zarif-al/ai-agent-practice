@@ -11,13 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/global/ui/card';
-import { WarningDialog } from '@/components/ai-scraping/warning-modal';
 import { ScrapingCategorySelection } from '@/components/ai-scraping/category-selection';
 import { URLInputForm } from '@/components/ai-scraping/url-input-form';
 import { ErrorAlert } from '@/components/ai-scraping/error-alert';
 import { AppHeader } from '@/components/global/app-header';
 import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
-import { initialScrapingState, scrapingReducer } from './reducer';
+import { initialScrapingState, sampleUrls, scrapingReducer } from './reducer';
 import { newsSchema, peopleSchema } from '../api/scrape-entity/schema';
 import { UrlList } from '@/components/ai-scraping/url-list';
 
@@ -25,9 +24,11 @@ export default function ScrapingPage() {
   const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
   const { urls, isProcessing, selectedPageType } = state;
 
+  const activeUrls = urls[selectedPageType] || [];
+
   // Process all URLs with mocked responses
   const handleProcessUrls = async () => {
-    if (urls.length === 0) {
+    if (activeUrls.length === 0) {
       dispatch({ type: 'SET_API_ERROR', payload: 'No URLs to process' });
       return;
     }
@@ -40,7 +41,9 @@ export default function ScrapingPage() {
     dispatch({ type: 'SET_IS_PROCESSING', payload: true });
 
     // Get only pending URLs
-    const incompleteUrls = urls.filter((url) => url.status !== 'completed');
+    const incompleteUrls = activeUrls.filter(
+      (url) => url.status !== 'completed'
+    );
 
     if (incompleteUrls.length === 0) {
       dispatch({ type: 'SET_IS_PROCESSING', payload: false });
@@ -53,10 +56,12 @@ export default function ScrapingPage() {
       // Set the URL to processing
       dispatch({
         type: 'SET_URLS',
-        payload: (prevUrls) =>
-          prevUrls.map((item) =>
+        payload: (prevUrls) => ({
+          ...prevUrls,
+          [selectedPageType]: prevUrls[selectedPageType].map((item) =>
             item.url === urlItem.url ? { ...item, status: 'processing' } : item
           ),
+        }),
       });
 
       try {
@@ -77,7 +82,7 @@ export default function ScrapingPage() {
         const resultJSON = await result.json();
 
         // Process result based on Page Type
-        switch (urlItem.pageType) {
+        switch (selectedPageType) {
           case 'news': {
             const { success, data } = newsSchema.safeParse(resultJSON);
 
@@ -87,10 +92,12 @@ export default function ScrapingPage() {
 
             dispatch({
               type: 'SET_URLS',
-              payload: (prevUrls) =>
-                prevUrls.map((item) =>
+              payload: (prevUrls) => ({
+                ...prevUrls,
+                [selectedPageType]: prevUrls[selectedPageType].map((item) =>
                   item.url === urlItem.url
                     ? {
+                        ...item,
                         ...item,
                         status: 'completed',
                         processedAt: new Date(),
@@ -105,6 +112,7 @@ export default function ScrapingPage() {
                       }
                     : item
                 ),
+              }),
             });
 
             break;
@@ -118,8 +126,9 @@ export default function ScrapingPage() {
 
             dispatch({
               type: 'SET_URLS',
-              payload: (prevUrls) =>
-                prevUrls.map((item) =>
+              payload: (prevUrls) => ({
+                ...prevUrls,
+                [selectedPageType]: prevUrls[selectedPageType].map((item) =>
                   item.url === urlItem.url
                     ? {
                         ...item,
@@ -136,6 +145,7 @@ export default function ScrapingPage() {
                       }
                     : item
                 ),
+              }),
             });
 
             break;
@@ -148,8 +158,9 @@ export default function ScrapingPage() {
         // Handle errors
         dispatch({
           type: 'SET_URLS',
-          payload: (prevUrls) =>
-            prevUrls.map((item) =>
+          payload: (prevUrls) => ({
+            ...prevUrls,
+            [selectedPageType]: prevUrls[selectedPageType].map((item) =>
               item.url === urlItem.url
                 ? {
                     ...item,
@@ -158,6 +169,7 @@ export default function ScrapingPage() {
                   }
                 : item
             ),
+          }),
         });
       }
     });
@@ -171,11 +183,11 @@ export default function ScrapingPage() {
 
   // Count URLs by status
   const urlCounts: IURLCounts = {
-    total: urls.length,
-    pending: urls.filter((u) => u.status === 'pending').length,
-    processing: urls.filter((u) => u.status === 'processing').length,
-    completed: urls.filter((u) => u.status === 'completed').length,
-    error: urls.filter((u) => u.status === 'error').length,
+    total: activeUrls.length,
+    pending: activeUrls.filter((u) => u.status === 'pending').length,
+    processing: activeUrls.filter((u) => u.status === 'processing').length,
+    completed: activeUrls.filter((u) => u.status === 'completed').length,
+    error: activeUrls.filter((u) => u.status === 'error').length,
   };
 
   return (
@@ -201,32 +213,37 @@ export default function ScrapingPage() {
             {/* API Error Alert */}
             <ErrorAlert dispatch={dispatch} state={state} />
 
-            {/* Tabs for URLs and Results */}
-            {/* <ScrapingTabs
-              urlCounts={urlCounts}
-              dispatch={dispatch}
-              state={state}
-            /> */}
-
             {/* Unifiend Results View */}
             <UrlList urlCounts={urlCounts} dispatch={dispatch} state={state} />
           </CardContent>
 
           <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => {
-                dispatch({ type: 'HANDLE_CLEAR_URLS' });
-              }}
-              disabled={urls.length === 0 || isProcessing}
-            >
-              Clear All
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  dispatch({ type: 'HANDLE_CLEAR_URLS' });
+                }}
+                disabled={activeUrls.length === 0 || isProcessing}
+              >
+                Clear All
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  dispatch({ type: 'SET_URLS', payload: sampleUrls });
+                }}
+              >
+                Set Sample URLs
+              </Button>
+            </div>
 
             <Button
               onClick={handleProcessUrls}
               disabled={
-                urls.length === 0 || isProcessing || urlCounts.pending === 0
+                activeUrls.length === 0 ||
+                isProcessing ||
+                urlCounts.pending === 0
               }
               className="gap-2"
             >
@@ -244,8 +261,6 @@ export default function ScrapingPage() {
             </Button>
           </CardFooter>
         </Card>
-
-        <WarningDialog dispatch={dispatch} state={state} />
       </div>
     </div>
   );
