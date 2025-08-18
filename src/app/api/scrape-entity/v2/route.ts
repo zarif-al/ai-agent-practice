@@ -19,10 +19,20 @@ export async function POST(req: Request) {
   try {
     switch (pageType) {
       case 'person': {
-        return await scrapPageV2('Person', peopleSchema, url);
+        return await scrapPageV2(
+          'Person',
+          peopleSchema,
+          url,
+          `You will receive a web page URL of a university person. Please extract the data from this web page.`
+        );
       }
       case 'news': {
-        return await scrapPageV2('News', newsSchema, url);
+        return await scrapPageV2(
+          'News',
+          newsSchema,
+          url,
+          'You will receive a web page URL of a university news topic. Please extract the data from this web page.'
+        );
       }
     }
   } catch (error) {
