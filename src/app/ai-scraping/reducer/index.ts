@@ -20,35 +20,30 @@ export const sampleUrls: IScrapingState['urls'] = {
       url: 'https://www.merton.ox.ac.uk/people/professor-rhiannon-ash',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
     },
     {
       id: 'url-1746956649697',
       url: 'https://www.merton.ox.ac.uk/people/professor-jennifer-payne',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
     },
     {
       id: 'url-1746956652952',
       url: 'https://www.merton.ox.ac.uk/people/professor-judith-armitage',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
     },
     {
       id: 'url-1746956657092',
       url: 'https://www.merton.ox.ac.uk/people/nicholas-w-allard',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
     },
     {
       id: 'url-1746956660268',
       url: 'https://www.merton.ox.ac.uk/people/honourable-dame-kelyn-bacon',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'person',
     },
   ],
   news: [
@@ -57,7 +52,6 @@ export const sampleUrls: IScrapingState['urls'] = {
       url: 'https://www.merton.ox.ac.uk/news/accessible-graduate-accommodation-nearing-completion',
       status: 'pending',
       addedAt: new Date(),
-      pageType: 'news',
     },
   ],
 };

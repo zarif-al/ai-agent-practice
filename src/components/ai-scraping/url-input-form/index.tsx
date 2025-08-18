@@ -64,7 +64,6 @@ export function URLInputForm({ dispatch, state }: IURLInputFormProps) {
       url: trimmedUrl,
       status: 'pending',
       addedAt: new Date(),
-      pageType: state.selectedPageType,
     };
 
     dispatch({

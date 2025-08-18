@@ -12,7 +12,6 @@ export interface UrlItem {
   processedAt?: Date;
   error?: string;
   result?: IGeneratedObjectResult;
-  pageType: PageType;
 }
 
 // AI Scrape results interface

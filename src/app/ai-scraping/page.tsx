@@ -82,7 +82,7 @@ export default function ScrapingPage() {
         const resultJSON = await result.json();
 
         // Process result based on Page Type
-        switch (urlItem.pageType) {
+        switch (selectedPageType) {
           case 'news': {
             const { success, data } = newsSchema.safeParse(resultJSON);
 
