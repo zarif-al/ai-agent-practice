@@ -12,7 +12,7 @@ import * as cheerio from 'cheerio';
 
 function cleanHTML(html: string): string {
   const $ = cheerio.load(html);
-  $('script, style, noscript, meta, link').remove();
+  $('script, style, noscript, meta, link,head').remove();
   $('*').each(function() {
     const el = $(this);
     el.removeAttr('class');
@@ -106,20 +106,25 @@ export async function scrapPageV2(
     schemaName: schemaName,
     schema: schema,
     system: systemPrompt,
-    // prompt: processedHTML,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'file',
-            data: new URL(url),
-            mimeType: 'text/html',
-          },
-        ],
-      },
-    ],
+    prompt: processedHTML,
+    // messages: [
+    //   {
+    //     role: 'user',
+    //     content: [
+    //       {
+    //         type: 'file',
+    //         data: new URL(url),
+    //         mimeType: 'text/html',
+    //       },
+    //     ],
+    //   },
+    // ],
   });
+  console.log('Generated object:', object);
+
+  //save the generated object to a json file
+  const outputFilePath = path.join(process.cwd(), 'generated-object.json');
+  fs.writeFileSync(outputFilePath, JSON.stringify(object, null, 2), 'utf-8');
 
   log.info('Usage: ', {
     url,

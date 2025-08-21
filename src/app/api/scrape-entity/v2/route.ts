@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { newsSchema, peopleSchema } from '../schema';
+import { newsSchema, peopleSchema,homePageSchema } from '../schema';
 import { log, logVercelAISDKError } from '@/utils/global/logger';
 import { scrapPageV2 } from './utils';
 
@@ -34,6 +34,14 @@ export async function POST(req: Request) {
           'You will receive a web page URL of a university news topic. Please extract the data from this web page.'
         );
       }
+      case 'home': {
+        return await scrapPageV2(
+          'HomePage',
+          homePageSchema,
+          url,
+          'You will receive a web page URL of a university home page. Please extract the data from this web page.'
+        );
+      }
     }
   } catch (error) {
     logVercelAISDKError(error);
@@ -46,5 +54,5 @@ export async function POST(req: Request) {
 
 const requestBodySchema = z.object({
   url: z.string().url(),
-  pageType: z.enum(['person', 'news']),
+  pageType: z.enum(['person', 'news','home']),
 });

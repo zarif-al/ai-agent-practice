@@ -49,7 +49,15 @@ export const sampleUrls: IScrapingState['urls'] = {
   news: [
     {
       id: 'url-1746956645786',
-      url: 'https://www.merton.ox.ac.uk/news/accessible-graduate-accommodation-nearing-completion',
+      url: 'https://www.merton.ox.ac.uk/news/mertonian-james-nation-named-rishi-sunaks-resignation-honours-list',
+      status: 'pending',
+      addedAt: new Date(),
+    },
+  ],
+  home: [
+    {
+      id: 'url-1746956645786',
+      url: 'https://www.merton.ox.ac.uk/',
       status: 'pending',
       addedAt: new Date(),
     },

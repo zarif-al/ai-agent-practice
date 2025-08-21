@@ -66,7 +66,7 @@ export default function ScrapingPage() {
 
       try {
         // Call API to generate object
-        const result = await fetch('/api/scrape-entity/v1', {
+        const result = await fetch('/api/scrape-entity/v2', {
           method: 'POST',
           body: JSON.stringify({
             url: urlItem.url,
