@@ -36,7 +36,7 @@ export const CATEGORY_DISPLAY_NAMES: Record<Category, string> = {
 };
 
 // URL counts interface
-export interface IURLCounts {
+export interface IStatusCounts {
   total: number;
   pending: number;
   processing: number;

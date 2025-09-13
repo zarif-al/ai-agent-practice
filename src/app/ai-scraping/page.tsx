@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer } from 'react';
+import { useReducer, useMemo } from 'react';
 import { Loader2, Check, Download } from 'lucide-react';
 import { Button } from '@/components/global/ui/button';
 import {
@@ -16,110 +16,27 @@ import { ScrapingCategorySelection } from '@/components/ai-scraping/category-sel
 import { URLInputForm } from '@/components/ai-scraping/url-input-form';
 import { ErrorAlert } from '@/components/ai-scraping/error-alert';
 import { AppHeader } from '@/components/global/app-header';
-import type { IURLCounts } from '@/utils/ai-scraping/common-interfaces';
+import type { IStatusCounts } from '@/utils/ai-scraping/common-interfaces';
 import { initialScrapingState, scrapingReducer } from './reducer';
-import { UrlList } from '@/components/ai-scraping/url-list';
-import { scrapContent } from '../server-actions/scrape-data';
+import { ItemList } from '@/components/ai-scraping/item-list';
 import { handleExportResults } from '@/utils/ai-scraping/helpers';
+import { handleProcessItems } from './utils';
 
 export default function ScrapingPage() {
   const [state, dispatch] = useReducer(scrapingReducer, initialScrapingState);
-  const { urls, isProcessing, selectedCategory } = state;
-
-  // Process all URLs with mocked responses
-  const handleProcessUrls = async () => {
-    // Get incomplete urls
-    const incompleteUrls = urls.filter((url) => url.status !== 'completed');
-
-    // If no incomplete URLs, exit
-    if (incompleteUrls.length === 0) {
-      dispatch({ type: 'SET_IS_PROCESSING', payload: false });
-
-      return;
-    }
-
-    // Reset any previous errors
-    dispatch({ type: 'SET_ERROR', payload: undefined });
-
-    // Set processing state
-    dispatch({ type: 'SET_IS_PROCESSING', payload: true });
-
-    // Generate promises for each URL
-    const promises = incompleteUrls.map(async (urlItem) => {
-      // Set the URL to processing
-      dispatch({
-        type: 'SET_URLS',
-        payload: (prevUrls) =>
-          prevUrls.map((item) =>
-            item.url === urlItem.url ? { ...item, status: 'processing' } : item
-          ),
-      });
-
-      try {
-        // Call server action to scrape content
-        const result = await scrapContent({ item: urlItem });
-
-        // Process result based on Page Type
-        switch (urlItem.category) {
-          case 'news': {
-            dispatch({
-              type: 'SET_URLS',
-              payload: (prevUrls) =>
-                prevUrls.map((item) =>
-                  item.url === urlItem.url ? result : item
-                ),
-            });
-
-            break;
-          }
-          case 'person': {
-            dispatch({
-              type: 'SET_URLS',
-              payload: (prevUrls) =>
-                prevUrls.map((item) =>
-                  item.url === urlItem.url ? result : item
-                ),
-            });
-
-            break;
-          }
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
-
-        // Handle errors
-        dispatch({
-          type: 'SET_URLS',
-          payload: (prevUrls) =>
-            prevUrls.map((item) =>
-              item.url === urlItem.url
-                ? {
-                    ...item,
-                    status: 'error',
-                    error: errorMessage,
-                  }
-                : item
-            ),
-        });
-      }
-    });
-
-    // Call Promise.all to wait for all promises to resolve
-    await Promise.all(promises);
-
-    // Reset processing state
-    dispatch({ type: 'SET_IS_PROCESSING', payload: false });
-  };
+  const { items, isProcessing, selectedCategory } = state;
 
   // Count URLs by status
-  const urlCounts: IURLCounts = {
-    total: urls.length,
-    pending: urls.filter((u) => u.status === 'pending').length,
-    processing: urls.filter((u) => u.status === 'processing').length,
-    completed: urls.filter((u) => u.status === 'completed').length,
-    error: urls.filter((u) => u.status === 'error').length,
-  };
+  const statusCounts: IStatusCounts = useMemo(
+    () => ({
+      total: items.length,
+      pending: items.filter((u) => u.status === 'pending').length,
+      processing: items.filter((u) => u.status === 'processing').length,
+      completed: items.filter((u) => u.status === 'completed').length,
+      error: items.filter((u) => u.status === 'error').length,
+    }),
+    [items]
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -145,7 +62,11 @@ export default function ScrapingPage() {
             <ErrorAlert dispatch={dispatch} state={state} />
 
             {/* Unified Results View */}
-            <UrlList urlCounts={urlCounts} dispatch={dispatch} state={state} />
+            <ItemList
+              statusCounts={statusCounts}
+              dispatch={dispatch}
+              state={state}
+            />
           </CardContent>
 
           <CardFooter className="flex justify-between">
@@ -155,14 +76,14 @@ export default function ScrapingPage() {
                 onClick={() => {
                   dispatch({ type: 'HANDLE_CLEAR_URLS' });
                 }}
-                disabled={urls.length === 0 || isProcessing}
+                disabled={items.length === 0 || isProcessing}
               >
                 Clear All
               </Button>
 
               <Button
                 variant="outline"
-                onClick={() => handleExportResults(urls, selectedCategory)}
+                onClick={() => handleExportResults(items, selectedCategory)}
                 disabled={isProcessing}
                 className="gap-1"
               >
@@ -172,9 +93,9 @@ export default function ScrapingPage() {
             </div>
 
             <Button
-              onClick={handleProcessUrls}
+              onClick={() => handleProcessItems({ items, dispatch })}
               disabled={
-                urls.length === 0 || isProcessing || urlCounts.pending === 0
+                items.length === 0 || isProcessing || statusCounts.pending === 0
               }
               className="gap-2"
             >

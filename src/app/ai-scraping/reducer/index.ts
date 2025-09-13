@@ -1,7 +1,7 @@
 import type { IScrapingState, ScrapingAction } from './interface';
 
 export const initialScrapingState: IScrapingState = {
-  urls: [
+  items: [
     {
       id: 'url-1746956645786',
       url: 'https://www.merton.ox.ac.uk/news/new-lighting-installed-college-chapel',
@@ -23,12 +23,12 @@ export const scrapingReducer = (
   action: ScrapingAction
 ): IScrapingState => {
   switch (action.type) {
-    case 'SET_URLS':
+    case 'SET_ITEMS':
       return {
         ...state,
-        urls:
+        items:
           typeof action.payload === 'function'
-            ? action.payload(state.urls) // Call the function with the current state
+            ? action.payload(state.items) // Call the function with the current state
             : action.payload, // Use the payload directly if it's not a function
       };
     case 'SET_IS_PROCESSING':
@@ -56,7 +56,7 @@ export const scrapingReducer = (
     case 'HANDLE_CLEAR_URLS':
       return {
         ...state,
-        urls: [],
+        items: [],
         activeTab: 'urls',
       };
     case 'HANDLE_PAGE_TYPE_WARNING_CONFIRM': {
@@ -71,7 +71,7 @@ export const scrapingReducer = (
         selectedCategory: pendingCategory,
         showPageTypeWarning: false,
         pendingCategory: undefined,
-        urls: [],
+        items: [],
         activeTab: 'urls',
         error: undefined,
         isProcessing: false,

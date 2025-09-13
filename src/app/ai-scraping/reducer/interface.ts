@@ -1,7 +1,7 @@
 import type { Category, UrlItem } from '@/utils/ai-scraping/common-interfaces';
 
 export interface IScrapingState {
-  urls: UrlItem[];
+  items: UrlItem[];
   isProcessing: boolean;
   error?: {
     type: 'error' | 'apiError';
@@ -13,13 +13,13 @@ export interface IScrapingState {
   pendingCategory?: Category;
 }
 
-type SetUrlsPayload = UrlItem[] | ((prevUrls: UrlItem[]) => UrlItem[]);
+type SetItemsPayload = UrlItem[] | ((prevItems: UrlItem[]) => UrlItem[]);
 
 export type ScrapingAction =
   | {
-      type: 'SET_URLS';
-      // Inside async calls to setUrls, we can pass a function that takes the previous state and returns the new state
-      payload: SetUrlsPayload;
+      type: 'SET_ITEMS';
+      // Inside async calls to setItems, we can pass a function that takes the previous state and returns the new state
+      payload: SetItemsPayload;
     }
   | { type: 'SET_IS_PROCESSING'; payload: boolean }
   | {

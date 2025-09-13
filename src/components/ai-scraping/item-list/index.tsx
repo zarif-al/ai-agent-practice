@@ -2,7 +2,7 @@ import {
   CATEGORY_DISPLAY_NAMES,
   type UrlItem,
 } from '@/utils/ai-scraping/common-interfaces';
-import type { IUrlListProps } from './interface';
+import type { IItemListProps } from './interface';
 import { StatusBadge } from './components/status-badge';
 import { ExternalLink, Trash2 } from 'lucide-react';
 import { formatDate } from '@/utils/ai-scraping/helpers';
@@ -18,7 +18,7 @@ import { ScrollArea } from '@/components/global/ui/scroll-area';
 import { useState } from 'react';
 import { URLScrapeResults } from './components/modal';
 
-export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
+export function ItemList({ dispatch, state, statusCounts }: IItemListProps) {
   const [selectedItem, setSelectedItem] = useState<UrlItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -27,7 +27,7 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
 
   const handleRemoveUrl = (id: string) => {
     dispatch({
-      type: 'SET_URLS',
+      type: 'SET_ITEMS',
       payload: (prevUrls) => prevUrls.filter((item) => item.id !== id),
     });
   };
@@ -40,31 +40,31 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
           URLs to Process - {selectedPageTypeDisplayName}
         </div>
         <div className="flex gap-2">
-          {urlCounts.total > 0 && (
+          {statusCounts.total > 0 && (
             <>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex gap-1">
                       <Badge variant="outline" className="bg-background">
-                        {urlCounts.pending} pending
+                        {statusCounts.pending} pending
                       </Badge>
-                      {urlCounts.processing > 0 && (
+                      {statusCounts.processing > 0 && (
                         <Badge variant="secondary" className="animate-pulse">
-                          {urlCounts.processing} processing
+                          {statusCounts.processing} processing
                         </Badge>
                       )}
-                      {urlCounts.completed > 0 && (
+                      {statusCounts.completed > 0 && (
                         <Badge
                           variant="default"
                           className="bg-green-100 text-green-800"
                         >
-                          {urlCounts.completed} completed
+                          {statusCounts.completed} completed
                         </Badge>
                       )}
-                      {urlCounts.error > 0 && (
+                      {statusCounts.error > 0 && (
                         <Badge variant="destructive">
-                          {urlCounts.error} failed
+                          {statusCounts.error} failed
                         </Badge>
                       )}
                     </div>
@@ -79,7 +79,7 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
         </div>
       </div>
 
-      {state.urls.length == 0 && (
+      {state.items.length == 0 && (
         <div className="p-8 text-center">
           <div className="text-muted-foreground mb-2">No URLs added yet</div>
           <p className="text-sm text-muted-foreground">
@@ -90,10 +90,10 @@ export function UrlList({ dispatch, state, urlCounts }: IUrlListProps) {
       )}
 
       {/* URL List */}
-      {state.urls.length > 0 && (
+      {state.items.length > 0 && (
         <ScrollArea className="h-[500px]">
           <div className="divide-y">
-            {state.urls.map((item) => (
+            {state.items.map((item) => (
               <div
                 className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
                 key={item.id}
