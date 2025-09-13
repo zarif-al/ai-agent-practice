@@ -28,11 +28,12 @@ export default function ScrapingPage() {
 
   // Process all URLs with mocked responses
   const handleProcessUrls = async () => {
-    if (urls.length === 0) {
-      dispatch({
-        type: 'SET_ERROR',
-        payload: { type: 'error', message: 'No URLs to process' },
-      });
+    // Get incomplete urls
+    const incompleteUrls = urls.filter((url) => url.status !== 'completed');
+
+    // If no incomplete URLs, exit
+    if (incompleteUrls.length === 0) {
+      dispatch({ type: 'SET_IS_PROCESSING', payload: false });
 
       return;
     }
@@ -43,16 +44,7 @@ export default function ScrapingPage() {
     // Set processing state
     dispatch({ type: 'SET_IS_PROCESSING', payload: true });
 
-    // Get incomplete
-    const incompleteUrls = urls.filter((url) => url.status !== 'completed');
-
-    if (incompleteUrls.length === 0) {
-      dispatch({ type: 'SET_IS_PROCESSING', payload: false });
-
-      return;
-    }
-
-    // Process all URLS in parallel
+    // Generate promises for each URL
     const promises = incompleteUrls.map(async (urlItem) => {
       // Set the URL to processing
       dispatch({
@@ -64,7 +56,7 @@ export default function ScrapingPage() {
       });
 
       try {
-        // Call API to generate object
+        // Call server action to scrape content
         const result = await scrapContent({ item: urlItem });
 
         // Process result based on Page Type
@@ -113,7 +105,7 @@ export default function ScrapingPage() {
       }
     });
 
-    // Wait for all promises to resolve
+    // Call Promise.all to wait for all promises to resolve
     await Promise.all(promises);
 
     // Reset processing state
